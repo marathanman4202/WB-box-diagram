@@ -14,17 +14,17 @@ file_model_csv = "Willamette_at_Portland_(m3_s)_Ref_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
 time = np.array(data_v[:,0])
-Value_Ref = np.mean((np.array(data_v[:,1]))[0:5474])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value_Ref = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
 
 file_model_csv = file_model_csv.replace("Ref", "HighClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_HC = np.mean((np.array(data_v[:,1]))[0:5474])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value_HC = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
 
 file_model_csv = file_model_csv.replace("HighClim", "LowClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_LC = np.mean((np.array(data_v[:,1]))[0:5474])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value_LC = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
 
 Value = np.mean(np.array([Value_Ref, Value_HC, Value_LC]))
 print "Willamette at Portland = ", Value," cm"
@@ -33,17 +33,17 @@ print "Willamette at Portland = ", Value," cm"
 file_model_csv = "Climate_Ref_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_Ref = np.mean((np.array(data_v[:,1]))[0:5474])*365/10.
+Value_Ref = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*365/10.
 
 file_model_csv = file_model_csv.replace("Ref", "HighClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_HC = np.mean((np.array(data_v[:,1]))[0:5474])*365/10.
+Value_HC = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*365/10.
 
 file_model_csv = file_model_csv.replace("HighClim", "LowClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_LC = np.mean((np.array(data_v[:,1]))[0:5474])*365/10.
+Value_LC = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*365/10.
 
 Value = np.mean(np.array([Value_Ref, Value_HC, Value_LC]))
 print "Basin-wide avg Precip = ", Value," cm"
@@ -81,10 +81,10 @@ Value_HC = np.mean((np.array(data_v[:,1]))[0:5474])*365/10.
 file_model_csv = file_model_csv.replace("HighClim", "LowClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_LC = np.mean((np.array(data_v[:,1]))[0:5474])*365/10.
-
+Value_LC = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*365/10.
 Value = np.mean(np.array([Value_Ref, Value_HC, Value_LC]))
 print "Basin-wide avg AET = ", Value," cm"
+
 
 # http://www.oregon.gov/owrd/docs/1998_04_Willamette_Brochure.pdf
 WVP_Vol_summer = (93900+28700+281600+65000+194600+24800+249900+324200+78800+143900+108200)*cst.acft_to_m3/cst.Willamette_Basin_area*100.
@@ -95,17 +95,17 @@ print "Reservoirs Full Pool Storage = ",WVP_Vol_summer, " cm"
 file_model_csv = "Daily_WaterMaster_Metrics_Ref_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_Ref = np.mean((np.array(data_v[:,1]))[0:5474])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value_Ref = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
 
 file_model_csv = file_model_csv.replace("Ref", "HighClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_HC = np.mean((np.array(data_v[:,1]))[0:5474])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value_HC = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
 
 file_model_csv = file_model_csv.replace("HighClim", "LowClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_LC = np.mean((np.array(data_v[:,1]))[0:5474])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value_LC = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
 
 Value = np.mean(np.array([Value_Ref, Value_HC, Value_LC]))
 print "Instream regulatory use = ", Value," cm"
@@ -114,18 +114,18 @@ print "Instream regulatory use = ", Value," cm"
 file_model_csv = "Daily_WaterMaster_Metrics_Ref_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_Ref = (np.mean((np.array(data_v[:,2]))[0:5474]) +\
-             np.mean((np.array(data_v[:,3]))[0:5474]))*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value_Ref = (np.mean((np.array(data_v[:,2]))[:(cst.days_in_15_yrs-1)]) +\
+             np.mean((np.array(data_v[:,3]))[:(cst.days_in_15_yrs-1)]))*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
 
 file_model_csv = file_model_csv.replace("Ref", "HighClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 Value_HC = (np.mean((np.array(data_v[:,2]))[0:5474]) +\
-             np.mean((np.array(data_v[:,3]))[0:5474]))*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+             np.mean((np.array(data_v[:,3]))[0:5474]))*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
 
 file_model_csv = file_model_csv.replace("HighClim", "LowClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-Value_LC = (np.mean((np.array(data_v[:,2]))[0:5474]) +\
-             np.mean((np.array(data_v[:,3]))[0:5474]))*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value_LC = (np.mean((np.array(data_v[:,2]))[:(cst.days_in_15_yrs-1)]) +\
+             np.mean((np.array(data_v[:,3]))[:(cst.days_in_15_yrs-1)]))*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
 
 Value = np.mean(np.array([Value_Ref, Value_HC, Value_LC]))
 print "Irrigation water diverted = ", Value," cm"
@@ -134,18 +134,18 @@ print "Irrigation water diverted = ", Value," cm"
 file_model_csv = "Daily_WaterMaster_Metrics_Ref_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_Ref = (np.mean((np.array(data_v[:,4]))[0:5474]) +\
-             np.mean((np.array(data_v[:,5]))[0:5474]))*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value_Ref = (np.mean((np.array(data_v[:,4]))[:(cst.days_in_15_yrs-1)]) +\
+             np.mean((np.array(data_v[:,5]))[:(cst.days_in_15_yrs-1)]))*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
 
 file_model_csv = file_model_csv.replace("Ref", "HighClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-Value_HC = (np.mean((np.array(data_v[:,4]))[0:5474]) +\
-             np.mean((np.array(data_v[:,5]))[0:5474]))*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value_HC = (np.mean((np.array(data_v[:,4]))[:(cst.days_in_15_yrs-1)]) +\
+             np.mean((np.array(data_v[:,5]))[:(cst.days_in_15_yrs-1)]))*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
 
 file_model_csv = file_model_csv.replace("HighClim", "LowClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-Value_LC = (np.mean((np.array(data_v[:,4]))[0:5474]) +\
-             np.mean((np.array(data_v[:,5]))[0:5474]))*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value_LC = (np.mean((np.array(data_v[:,4]))[:(cst.days_in_15_yrs-1)]) +\
+             np.mean((np.array(data_v[:,5]))[:(cst.days_in_15_yrs-1)]))*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
 
 Value = np.mean(np.array([Value_Ref, Value_HC, Value_LC]))
 print "Municipal water diverted = ", Value," cm"
