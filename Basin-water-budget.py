@@ -71,12 +71,12 @@ print "Basin-wide max SWE = ", Value," cm"
 file_model_csv = "ET_by_Elevation_(mm)_Ref_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_Ref = np.mean((np.array(data_v[:,1]))[0:5474])*365/10.
+Value_Ref = np.mean((np.array(data_v[:,1]))[1460:(cst.days_in_15_yrs-1)])*365/10.
 
 file_model_csv = file_model_csv.replace("Ref", "HighClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_HC = np.mean((np.array(data_v[:,1]))[0:5474])*365/10.
+Value_HC = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*365/10.
 
 file_model_csv = file_model_csv.replace("HighClim", "LowClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
