@@ -131,21 +131,57 @@ Value = np.mean(np.array([Value_Ref, Value_HC, Value_LC]))
 print "Irrigation water diverted = ", Value," cm"
 
 
-file_model_csv = "Daily_WaterMaster_Metrics_Ref_Run0.csv"
+#file_model_csv = "Daily_WaterMaster_Metrics_Ref_Run0.csv"
+#file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
+#data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
+#Value_Ref = (np.mean((np.array(data_v[:,4]))[:(cst.days_in_15_yrs-1)]) +\
+#             np.mean((np.array(data_v[:,5]))[:(cst.days_in_15_yrs-1)]))*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
+#
+#file_model_csv = file_model_csv.replace("Ref", "HighClim")
+#file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
+#Value_HC = (np.mean((np.array(data_v[:,4]))[:(cst.days_in_15_yrs-1)]) +\
+#             np.mean((np.array(data_v[:,5]))[:(cst.days_in_15_yrs-1)]))*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
+#
+#file_model_csv = file_model_csv.replace("HighClim", "LowClim")
+#file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
+#Value_LC = (np.mean((np.array(data_v[:,4]))[:(cst.days_in_15_yrs-1)]) +\
+#             np.mean((np.array(data_v[:,5]))[:(cst.days_in_15_yrs-1)]))*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
+#
+#Value = np.mean(np.array([Value_Ref, Value_HC, Value_LC]))
+#print "Municipal water diverted = ", Value," cm"
+
+
+file_model_csv = "Urban_Population_Ref_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_Ref = (np.mean((np.array(data_v[:,4]))[:(cst.days_in_15_yrs-1)]) +\
-             np.mean((np.array(data_v[:,5]))[:(cst.days_in_15_yrs-1)]))*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
+UrbPop = np.mean(np.sum(np.array(data_v[1:,1:][:15]),1))
+Metro_Pop = np.mean(np.array(data_v[1:16,1]))
+
+file_model_csv = "Rural_Residential_Population_Ref_Run0.csv"
+file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
+data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
+RurPop = np.mean(np.sum(np.array(data_v[1:,1:][:15]),1))
+
+Basin_Pop = UrbPop + RurPop
+print "Population = ", Basin_Pop
+
+file_model_csv = "UrbanWaterDemand(_ccf_per_day_)_Ref_Run0.csv"
+file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
+data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
+Value_Ref = np.mean(np.sum(np.column_stack((np.array(data_v[1:16,1]),np.array(data_v[1:16,9]))),1))*100*365*cst.cfs_to_m3/cst.Willamette_Basin_area*100.
+Value_Ref = Value_Ref*Basin_Pop/Metro_Pop
 
 file_model_csv = file_model_csv.replace("Ref", "HighClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-Value_HC = (np.mean((np.array(data_v[:,4]))[:(cst.days_in_15_yrs-1)]) +\
-             np.mean((np.array(data_v[:,5]))[:(cst.days_in_15_yrs-1)]))*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
+Value_HC = np.mean(np.sum(np.column_stack((np.array(data_v[1:16,1]),np.array(data_v[1:16,9]))),1))*100*365*cst.cfs_to_m3/cst.Willamette_Basin_area*100.
+Value_HC = Value_HC*Basin_Pop/Metro_Pop
 
 file_model_csv = file_model_csv.replace("HighClim", "LowClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-Value_LC = (np.mean((np.array(data_v[:,4]))[:(cst.days_in_15_yrs-1)]) +\
-             np.mean((np.array(data_v[:,5]))[:(cst.days_in_15_yrs-1)]))*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
+Value_LC = np.mean(np.sum(np.column_stack((np.array(data_v[1:16,1]),np.array(data_v[1:16,9]))),1))*100*365*cst.cfs_to_m3/cst.Willamette_Basin_area*100.
+Value_LC = Value_LC*Basin_Pop/Metro_Pop
 
 Value = np.mean(np.array([Value_Ref, Value_HC, Value_LC]))
-print "Municipal water diverted = ", Value," cm"
+print "Municipal & domestic water diverted = ", Value," cm"
+
+print "Water use per person = ", Value*cst.Willamette_Basin_area/100*1000/3.785/365.25/Basin_Pop, " gal/day/person"
