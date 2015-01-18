@@ -33,17 +33,17 @@ print "Willamette at Portland = ", Value," cm"
 file_model_csv = "Climate_Ref_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_Ref = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*365/10.
+Value_Ref = np.mean((np.array(data_v[:,2]))[:(cst.days_in_15_yrs-1)])*365/10.
 
 file_model_csv = file_model_csv.replace("Ref", "HighClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_HC = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*365/10.
+Value_HC = np.mean((np.array(data_v[:,2]))[:(cst.days_in_15_yrs-1)])*365/10.
 
 file_model_csv = file_model_csv.replace("HighClim", "LowClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_LC = np.mean((np.array(data_v[:,1]))[:(cst.days_in_15_yrs-1)])*365/10.
+Value_LC = np.mean((np.array(data_v[:,2]))[:(cst.days_in_15_yrs-1)])*365/10.
 
 Value = np.mean(np.array([Value_Ref, Value_HC, Value_LC]))
 print "Basin-wide avg Precip = ", Value," cm"
