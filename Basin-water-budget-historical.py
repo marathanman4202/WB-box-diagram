@@ -159,3 +159,19 @@ print "Population = ", Basin_Pop
 #print "Municipal & domestic water diverted = ", Value," cm"
 #
 #print "Water use per person = ", Value*cst.Willamette_Basin_area/100*1000/3.785/365/Basin_Pop, " gal/day/person"
+
+import EF_rules as efr
+EFrules = efr.get_EFrules()
+keys = ['Salem']
+EF_rules_list = [EFrules[key] for key in keys]
+EF_rules_list = sorted(EF_rules_list, key=lambda x: x[0])  # order list by number
+EF_rules_list = [EF_rules_list[i][1] for i in range(1)]
+EF_rules = EF_rules_list[0]
+num_rules = len(EF_rules)
+vol = 0.
+for i in range(num_rules):
+    num_days = EF_rules[i][2] - EF_rules[i][1]
+    minQ = EF_rules[i][3]
+    if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
+specific_minQ = vol/cst.Willamette_Basin_area
+print 'Minimum flows at Salem = ', specific_minQ*100.,' cm'
