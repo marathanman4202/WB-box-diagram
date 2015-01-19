@@ -247,16 +247,25 @@ RurPop = np.mean(np.sum(np.array(data_v[1:,1:][:60]),1))
 Basin_Pop = UrbPop + RurPop
 print "Population = ", Basin_Pop
 
-#file_model_csv = "UrbanWaterDemand(_ccf_per_day_)_Historic_Run0.csv"
-#file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-#data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-#Value_Ref = np.mean(np.sum(np.column_stack((np.array(data_v[1:16,1]),np.array(data_v[1:16,9]))),1))*100*365*cst.cfs_to_m3/cst.Willamette_Basin_area*100.
-#Value_Ref = Value_Ref*Basin_Pop/Metro_Pop
-#
-#Value = np.mean(np.array([Value_Ref]))
-#print "Municipal & domestic water diverted = ", Value," cm"
-#
-#print "Water use per person = ", Value*cst.Willamette_Basin_area/100*1000/3.785/365/Basin_Pop, " gal/day/person"
+file_model_csv = "UrbanWaterDemand(_ccf_per_day_)_Ref_Run0.csv"
+file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
+data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
+Value_Ref = np.mean(np.sum(np.column_stack((np.array(data_v[1:16,1]),np.array(data_v[1:16,9]))),1))*100*365*cst.cfs_to_m3/cst.Willamette_Basin_area*100.
+Value_Ref = Value_Ref*Basin_Pop/Metro_Pop
+
+Col_num = range(1,9)
+file_model_csv = "Daily_Urban_Water_Demand_Summary_Historic_Run0.csv"
+file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
+data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)  # Read csv file cols into matrices and sum the matrices
+Value_Ref_Summer = nrc(data_v1,[1, summer_start],[59,summer_end])*100*summer_days*cst.cfs_to_m3/cst.Willamette_Basin_area*100.*1.11386
+Value_Ref_Winter = nrc(data_v1,[1, winter_start],[59,winter_end])*100*winter_days*cst.cfs_to_m3/cst.Willamette_Basin_area*100.*1.11386
+
+Value = np.mean(np.array([Value_Ref]))
+print "Municipal & domestic water diverted (Annual) = ", Value," cm"
+print "Municipal & domestic water diverted (Summer) = ", Value_Ref_Summer," cm"
+print "Municipal & domestic water diverted (Winter) = ", Value_Ref_Winter," cm"
+
+print "Water use per person = ", Value*cst.Willamette_Basin_area/100*1000/3.785/365/Basin_Pop, " gal/day/person"
 
 import EF_rules as efr
 EFrules = efr.get_EFrules()
