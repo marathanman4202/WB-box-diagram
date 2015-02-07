@@ -59,14 +59,17 @@ file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data 
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
 Value_Ref = np.mean([np.max(np.array(data_v[i*365:(i+1)*365,Col_num])) for i in range(60)])/10. #avg over max of each of 60 yrs
 data_v1 = mfx(file_model_csv_w_path, column=Col_num, skip=cst.day_of_year_oct1) # Read csv file into matrix
-Value_Ref_Summer = nrc(data_v1,[1, summer_start],[59,summer_end],oper='AverageMaximum')/10.
-Value_Ref_Winter = nrc(data_v1,[1, winter_start],[59,winter_end],oper='AverageMaximum')/10.
+Value_Ref_Max_Summer = nrc(data_v1,[1, summer_start],[59,summer_end],oper='AverageMaximum')/10.
+Value_Ref_Min_Summer = nrc(data_v1,[1, summer_start],[59,summer_end],oper='AverageMinimum')/10.
+Value_Ref_Max_Winter = nrc(data_v1,[1, winter_start],[59,winter_end],oper='AverageMaximum')/10.
+Value_Ref_Min_Winter = nrc(data_v1,[1, winter_start],[59,winter_end],oper='AverageMinimum')/10.
 
 Value = np.mean(np.array([Value_Ref]))
 print "Basin-wide max SWE (Annual) = ", Value," cm"
-print "Basin-wide max SWE (Summer) = ", Value_Ref_Summer," cm"
-print "Basin-wide max SWE (Winter) = ", Value_Ref_Winter," cm"
-
+print "Basin-wide max SWE (Summer) = ", Value_Ref_Max_Summer," cm"
+print "Basin-wide min SWE (Summer) = ", Value_Ref_Min_Summer," cm"
+print "Basin-wide max SWE (Winter) = ", Value_Ref_Max_Winter," cm"
+print "Basin-wide min SWE (Winter) = ", Value_Ref_Min_Winter," cm"
 
 # Calculate storage in soil water content as follows
 # Since there is no simulated historical file as of 1/17/2015, use first 15 yrs of Ref, HighClim, LowClim 
@@ -81,8 +84,12 @@ Value_Ref = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num]
             np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(1,15)])/10. #max of 15 yrs 
             
 data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
-Value_Ref_Summer = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMax') - nrc(data_v1,[1, summer_start],[15,summer_end],oper='AverageMin')
-Value_Ref_Winter = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMax') - nrc(data_v1,[1, winter_start],[15,winter_end],oper='AverageMin')
+Value_Ref_Summer_max = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMax') 
+Value_Ref_Summer_min = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMin') 
+Value_Ref_Summer_delta = Value_Ref_Summer_max - Value_Ref_Summer_min
+Value_Ref_Winter_max = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMax')
+Value_Ref_Winter_min = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMin')
+Value_Ref_Winter_delta = Value_Ref_Winter_max - Value_Ref_Winter_min
 
 file_model_csv = file_model_csv.replace("Ref", "HighClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -91,8 +98,12 @@ Value_HC = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],
            np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(1,15)])/10. #max of 15 yrs 
 
 data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
-Value_HC_Summer = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMax') - nrc(data_v1,[1, summer_start],[15,summer_end],oper='AverageMin')
-Value_HC_Winter = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMax') - nrc(data_v1,[1, winter_start],[15,winter_end],oper='AverageMin')
+Value_HC_Summer_max = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMax') 
+Value_HC_Summer_min = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMin') 
+Value_HC_Summer_delta = Value_HC_Summer_max - Value_HC_Summer_min
+Value_HC_Winter_max = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMax')
+Value_HC_Winter_min = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMin')
+Value_HC_Winter_delta = Value_HC_Winter_max - Value_HC_Winter_min
 
 file_model_csv = file_model_csv.replace("HighClim", "LowClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -101,15 +112,27 @@ Value_LC = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],
            np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(1,15)])/10. #max of 15 yrs 
 
 data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
-Value_LC_Summer = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMax') - nrc(data_v1,[1, summer_start],[15,summer_end],oper='AverageMin')
-Value_LC_Winter = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMax') - nrc(data_v1,[1, winter_start],[15,winter_end],oper='AverageMin')
+Value_LC_Summer_max = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMax') 
+Value_LC_Summer_min = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMin') 
+Value_LC_Summer_delta = Value_Ref_Summer_max - Value_Ref_Summer_min
+Value_LC_Winter_max = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMax')
+Value_LC_Winter_min = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMin')
+Value_LC_Winter_delta = Value_Ref_Winter_max - Value_Ref_Winter_min
 
 Value_for = np.mean(np.array([Value_Ref,Value_HC,Value_LC]))*0.727  #Fraction of soil to be treated like forest for calc
-Value_for_Summer = np.mean(np.array([Value_Ref_Summer,Value_HC_Summer,Value_LC_Summer]))*0.727  #Fraction of soil to be treated like forest for calc
-Value_for_Winter = np.mean(np.array([Value_Ref_Winter,Value_HC_Winter, Value_LC_Winter]))*0.727  #Fraction of soil to be treated like forest for calc
-print "Basin-wide stored soil water in forest (Annual) = ", Value_for," cm"
-print "Basin-wide stored soil water in forest (Summer) = ", Value_for_Summer," cm"
-print "Basin-wide stored soil water in forest (Winter) = ", Value_for_Winter," cm"
+Value_for_Summer_max = np.mean(np.array([Value_Ref_Summer_max,Value_HC_Summer_max,Value_LC_Summer_max]))*0.727  #Fraction of soil to be treated like forest for calc
+Value_for_Summer_min = np.mean(np.array([Value_Ref_Summer_min,Value_HC_Summer_min,Value_LC_Summer_min]))*0.727  #Fraction of soil to be treated like forest for calc
+Value_for_Summer_delta = np.mean(np.array([Value_Ref_Summer_delta,Value_HC_Summer_delta,Value_LC_Summer_delta]))*0.727  #Fraction of soil to be treated like forest for calc
+Value_for_Winter_max = np.mean(np.array([Value_Ref_Winter_max,Value_HC_Winter_max, Value_LC_Winter_max]))*0.727  #Fraction of soil to be treated like forest for calc
+Value_for_Winter_min = np.mean(np.array([Value_Ref_Winter_min,Value_HC_Winter_min, Value_LC_Winter_min]))*0.727  #Fraction of soil to be treated like forest for calc
+Value_for_Winter_delta = np.mean(np.array([Value_Ref_Winter_delta,Value_HC_Winter_delta, Value_LC_Winter_delta]))*0.727  #Fraction of soil to be treated like forest for calc
+print "Maximum Basin-wide stored soil water in forest (Annual) = ", Value_for," cm"
+print "Basin-wide stored soil water in forest (Summer avg max) = ", Value_for_Summer_max," cm"
+print "Basin-wide stored soil water in forest (Summer avg min) = ", Value_for_Summer_min," cm"
+print "Basin-wide stored soil water in forest (Summer avg delta) = ", Value_for_Summer_delta," cm"
+print "Basin-wide stored soil water in forest (Winter avg max) = ", Value_for_Winter_max," cm"
+print "Basin-wide stored soil water in forest (Winter avg min) = ", Value_for_Winter_min," cm"
+print "Basin-wide stored soil water in forest (Winter avg delta) = ", Value_for_Winter_delta," cm"
 
 Col_num = range(1,5)
 file_model_csv = "Ag_Water_Content_Ref_Run0.csv"
@@ -119,8 +142,12 @@ Value_Ref = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num]
             np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(1,15)])/10. #max of 15 yrs 
             
 data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
-Value_Ref_Summer = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMax') - nrc(data_v1,[1, summer_start],[15,summer_end],oper='AverageMin')
-Value_Ref_Winter = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMax') - nrc(data_v1,[1, winter_start],[15,winter_end],oper='AverageMin')
+Value_Ref_Summer_max = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMax') 
+Value_Ref_Summer_min = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMin') 
+Value_Ref_Summer_delta = Value_Ref_Summer_max - Value_Ref_Summer_min
+Value_Ref_Winter_max = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMax')
+Value_Ref_Winter_min = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMin')
+Value_Ref_Winter_delta = Value_Ref_Winter_max - Value_Ref_Winter_min
 
 file_model_csv = file_model_csv.replace("Ref", "HighClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -129,8 +156,12 @@ Value_HC = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],
            np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(1,15)])/10. #max of 15 yrs 
 
 data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
-Value_HC_Summer = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMax') - nrc(data_v1,[1, summer_start],[15,summer_end],oper='AverageMin')
-Value_HC_Winter = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMax') - nrc(data_v1,[1, winter_start],[15,winter_end],oper='AverageMin')
+Value_HC_Summer_max = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMax') 
+Value_HC_Summer_min = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMin') 
+Value_HC_Summer_delta = Value_HC_Summer_max - Value_HC_Summer_min
+Value_HC_Winter_max = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMax')
+Value_HC_Winter_min = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMin')
+Value_HC_Winter_delta = Value_HC_Winter_max - Value_HC_Winter_min
 
 file_model_csv = file_model_csv.replace("HighClim", "LowClim")
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -139,19 +170,35 @@ Value_LC = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],
            np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(1,15)])/10. #max of 15 yrs 
 
 data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
-Value_LC_Summer = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMax') - nrc(data_v1,[1, summer_start],[15,summer_end],oper='AverageMin')
-Value_LC_Winter = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMax') - nrc(data_v1,[1, winter_start],[15,winter_end],oper='AverageMin')
+Value_LC_Summer_max = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMax') 
+Value_LC_Summer_min = nrc(data_v1,[0, summer_start],[15,summer_end],oper='AverageMin') 
+Value_LC_Summer_delta = Value_Ref_Summer_max - Value_Ref_Summer_min
+Value_LC_Winter_max = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMax')
+Value_LC_Winter_min = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMin')
+Value_LC_Winter_delta = Value_Ref_Winter_max - Value_Ref_Winter_min
 
-Value_ag = np.mean(np.array([Value_Ref,Value_HC,Value_LC]))*0.273   #Fraction of soil to be treated like ag for calc
-Value_ag_Summer = np.mean(np.array([Value_Ref_Summer,Value_HC_Summer,Value_LC_Summer]))*0.273  #Fraction of soil to be treated like forest for calc
-Value_ag_Winter = np.mean(np.array([Value_Ref_Winter,Value_HC_Winter, Value_LC_Winter]))*0.273  #Fraction of soil to be treated like forest for calc
+Value_ag = np.mean(np.array([Value_Ref,Value_HC,Value_LC]))*0.727  #Fraction of soil to be treated like forest for calc
+Value_ag_Summer_max = np.mean(np.array([Value_Ref_Summer_max,Value_HC_Summer_max,Value_LC_Summer_max]))*0.727  #Fraction of soil to be treated like forest for calc
+Value_ag_Summer_min = np.mean(np.array([Value_Ref_Summer_min,Value_HC_Summer_min,Value_LC_Summer_min]))*0.727  #Fraction of soil to be treated like forest for calc
+Value_ag_Summer_delta = np.mean(np.array([Value_Ref_Summer_delta,Value_HC_Summer_delta,Value_LC_Summer_delta]))*0.727  #Fraction of soil to be treated like forest for calc
+Value_ag_Winter_max = np.mean(np.array([Value_Ref_Winter_max,Value_HC_Winter_max, Value_LC_Winter_max]))*0.727  #Fraction of soil to be treated like forest for calc
+Value_ag_Winter_min = np.mean(np.array([Value_Ref_Winter_min,Value_HC_Winter_min, Value_LC_Winter_min]))*0.727  #Fraction of soil to be treated like forest for calc
+Value_ag_Winter_delta = np.mean(np.array([Value_Ref_Winter_delta,Value_HC_Winter_delta, Value_LC_Winter_delta]))*0.727  #Fraction of soil to be treated like forest for calc
+print "Maximum Basin-wide stored soil water in ag (Annual) = ", Value_ag," cm"
+print "Basin-wide stored soil water in ag (Summer avg max) = ", Value_ag_Summer_max," cm"
+print "Basin-wide stored soil water in ag (Summer avg min) = ", Value_ag_Summer_min," cm"
+print "Basin-wide stored soil water in ag (Summer avg delta) = ", Value_ag_Summer_delta," cm"
+print "Basin-wide stored soil water in ag (Winter avg max) = ", Value_ag_Winter_max," cm"
+print "Basin-wide stored soil water in ag (Winter avg min) = ", Value_ag_Winter_min," cm"
+print "Basin-wide stored soil water in ag (Winter avg delta) = ", Value_ag_Winter_delta," cm"
 
-print "Basin-wide stored soil water in ag (Annual) = ", Value_ag," cm"
-print "Basin-wide stored soil water in ag (Summer) = ", Value_ag_Summer," cm"
-print "Basin-wide stored soil water in ag (Winter) = ", Value_ag_Winter," cm"
-print "Basin-wide stored soil water total (Annual) = ", Value_ag + Value_for, " cm"
-print "Basin-wide stored soil water total (Summer) = ", Value_ag_Summer + Value_for_Summer," cm"
-print "Basin-wide stored soil water total (Winter) = ", Value_ag_Winter + Value_for_Winter," cm"
+print "Maximum Basin-wide stored soil water whole WB (Annual) = ", Value_ag + Value_for," cm"
+print "Basin-wide stored soil water whole WB (Summer avg max) = ", Value_ag_Summer_max + Value_for_Summer_max," cm"
+print "Basin-wide stored soil water whole WB (Summer avg min) = ", Value_ag_Summer_min + Value_for_Summer_min," cm"
+print "Basin-wide stored soil water whole WB (Summer avg delta) = ", Value_ag_Summer_delta + Value_for_Summer_delta," cm"
+print "Basin-wide stored soil water whole WB (Winter avg max) = ", Value_ag_Winter_max + Value_for_Winter_max," cm"
+print "Basin-wide stored soil water whole WB (Winter avg min) = ", Value_ag_Winter_min + Value_for_Winter_min," cm"
+print "Basin-wide stored soil water whole WB (Winter avg delta) = ", Value_ag_Winter_delta + Value_for_Winter_delta," cm"
 
 
 Col_num = 1
@@ -198,9 +245,58 @@ print "Basin-wide avg Ag AET (Winter) = ", Value_Ref_Winter," cm"
 
 
 # http://www.oregon.gov/owrd/docs/1998_04_Willamette_Brochure.pdf
-WVP_Vol_summer = (93900+28700+281600+65000+194600+24800+249900+324200+78800+143900+108200)*cst.acft_to_m3/cst.Willamette_Basin_area*100.
-WVP_Vol_full_pool = (116800+32900+455100+77600+355500+60700+281000+45800+89500+219000+125000)*cst.acft_to_m3/cst.Willamette_Basin_area*100.
-print "Reservoirs Full Pool Storage = ",WVP_Vol_summer, " cm"
+WVP_Vol_summer = (93900+28700+281600+65000+194600+24800+249900+324200+78800+143900+108200)*cst.acft_to_m3/cst.Willamette_Basin_area*100.   #info from web on summer vol
+WVP_Vol_full_pool = (116800+32900+455100+77600+355500+60700+281000+45800+89500+219000+125000)*cst.acft_to_m3/cst.Willamette_Basin_area*100. #info from web on full pool
+print "Reservoirs Full Pool Storage = ",WVP_Vol_full_pool, " cm"
+print "Reservoirs Summer volume = ", WVP_Vol_summer, " cm"
+
+Col_num1 = 3
+Col_num2 = 4
+file_list = [cst.path_data + 'Blue_River_Reservoir_(USACE)_Reservoir_Historic_Run0.csv',
+             cst.path_data + 'Cottage_Grove_Reservoir_(USACE)_Reservoir_Historic_Run0.csv',
+             cst.path_data + 'Cougar_Reservoir_(USACE)_Reservoir_Historic_Run0.csv',
+             cst.path_data + 'Detroit_Reservoir_(USACE)_Reservoir_Historic_Run0.csv',
+             cst.path_data + 'Dorena_Reservoir_(USACE)_Reservoir_Historic_Run0.csv',
+             cst.path_data + 'Fall_Creek_Reservoir_(USACE)_Reservoir_Historic_Run0.csv',
+             cst.path_data + 'Fern_Ridge_Reservoir_(USACE)_Reservoir_Historic_Run0.csv',
+             cst.path_data + 'Foster_Reservoir_(USACE)_Reservoir_Historic_Run0.csv',
+             cst.path_data + 'Green_Peter_Reservoir_(USACE)_Reservoir_Historic_Run0.csv',
+             cst.path_data + 'Hills_Creek_Reservoir_(USACE)_Reservoir_Historic_Run0.csv',
+             cst.path_data + 'Lookout_Point_Reservoir_(USACE)_Reservoir_Historic_Run0.csv']
+data_v_in    =  np.zeros_like(data_v1)
+data_v_out   = np.zeros_like(data_v1)
+data_v_delta = np.zeros_like(data_v1)
+data_v_cumsum = np.zeros_like(data_v1)
+for file_name in file_list:
+    data_tmp = mfx(file_name, column=Col_num1, skip=cst.day_of_year_oct1)
+    data_v_in  =   np.add(data_v_in, data_tmp)
+    data_tmp = mfx(file_name, column=Col_num2, skip=cst.day_of_year_oct1)
+    data_v_out =   np.add(data_v_out, data_tmp)
+data_v_delta = np.subtract(data_v_in,data_v_out)
+data_v_cumsum = np.cumsum(data_v_delta*86400,axis=1)
+Value_Ref_Summer_in = nrc(data_v_in,[1, summer_start],[59,summer_end])*summer_days*86400./cst.Willamette_Basin_area*100.
+Value_Ref_Winter_in = nrc(data_v_in,[1, winter_start],[59,winter_end])*winter_days*86400./cst.Willamette_Basin_area*100.
+Value_Ref_Summer_out = nrc(data_v_out,[1, summer_start],[59,summer_end])*summer_days*86400./cst.Willamette_Basin_area*100.
+Value_Ref_Winter_out = nrc(data_v_out,[1, winter_start],[59,winter_end])*winter_days*86400./cst.Willamette_Basin_area*100.
+Value_Ref_Summer_delta = nrc(data_v_delta, [1, summer_start],[59,summer_end])*summer_days*86400./cst.Willamette_Basin_area*100.
+Value_Ref_Winter_delta = nrc(data_v_delta, [1, winter_start],[59,winter_end])*winter_days*86400./cst.Willamette_Basin_area*100.
+Value_Ref_Summer_min =   nrc(data_v_cumsum,[1, summer_start],[59,summer_end],oper='AverageMin')/cst.Willamette_Basin_area*100.
+Value_Ref_Summer_max =   nrc(data_v_cumsum,[1, summer_start],[59,summer_end],oper='AverageMax')/cst.Willamette_Basin_area*100.
+Value_Ref_Winter_min =   nrc(data_v_cumsum,[1, winter_start],[59,winter_end],oper='AverageMin')/cst.Willamette_Basin_area*100.
+Value_Ref_Winter_max =   nrc(data_v_cumsum,[1, winter_start],[59,winter_end],oper='AverageMax')/cst.Willamette_Basin_area*100.
+print "All reservoirs summer input = ", Value_Ref_Summer_in," cm"
+print "All reservoirs winter input = ", Value_Ref_Winter_in," cm"
+print "All reservoirs annual input = ", Value_Ref_Winter_in+Value_Ref_Summer_in," cm"
+print "All reservoirs summer output = ", Value_Ref_Summer_out," cm"
+print "All reservoirs winter output = ", Value_Ref_Winter_out," cm"
+print "All reservoirs annual output = ", Value_Ref_Winter_out+Value_Ref_Summer_out," cm"
+print "All reservoirs summer delta = ", Value_Ref_Summer_delta," cm"
+print "All reservoirs winter delta = ", Value_Ref_Winter_delta," cm"
+print "All reservoirs annual delta = ", Value_Ref_Winter_delta + Value_Ref_Summer_delta," cm"
+print "All reservoirs summer min = ", Value_Ref_Summer_min," cm"
+print "All reservoirs summer max = ", Value_Ref_Summer_max," cm"
+print "All reservoirs winter min = ", Value_Ref_Winter_min," cm"
+print "All reservoirs winter max = ", Value_Ref_Winter_max," cm"
 
 
 Col_num = 1
