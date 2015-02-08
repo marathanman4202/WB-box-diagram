@@ -177,13 +177,13 @@ Value_LC_Winter_max = nrc(data_v1,[0, winter_start],[15,winter_end],oper='Averag
 Value_LC_Winter_min = nrc(data_v1,[0, winter_start],[15,winter_end],oper='AverageMin')
 Value_LC_Winter_delta = Value_Ref_Winter_max - Value_Ref_Winter_min
 
-Value_ag = np.mean(np.array([Value_Ref,Value_HC,Value_LC]))*0.727  #Fraction of soil to be treated like forest for calc
-Value_ag_Summer_max = np.mean(np.array([Value_Ref_Summer_max,Value_HC_Summer_max,Value_LC_Summer_max]))*0.727  #Fraction of soil to be treated like forest for calc
-Value_ag_Summer_min = np.mean(np.array([Value_Ref_Summer_min,Value_HC_Summer_min,Value_LC_Summer_min]))*0.727  #Fraction of soil to be treated like forest for calc
-Value_ag_Summer_delta = np.mean(np.array([Value_Ref_Summer_delta,Value_HC_Summer_delta,Value_LC_Summer_delta]))*0.727  #Fraction of soil to be treated like forest for calc
-Value_ag_Winter_max = np.mean(np.array([Value_Ref_Winter_max,Value_HC_Winter_max, Value_LC_Winter_max]))*0.727  #Fraction of soil to be treated like forest for calc
-Value_ag_Winter_min = np.mean(np.array([Value_Ref_Winter_min,Value_HC_Winter_min, Value_LC_Winter_min]))*0.727  #Fraction of soil to be treated like forest for calc
-Value_ag_Winter_delta = np.mean(np.array([Value_Ref_Winter_delta,Value_HC_Winter_delta, Value_LC_Winter_delta]))*0.727  #Fraction of soil to be treated like forest for calc
+Value_ag = np.mean(np.array([Value_Ref,Value_HC,Value_LC]))*0.273  #Fraction of soil to be treated like forest for calc
+Value_ag_Summer_max = np.mean(np.array([Value_Ref_Summer_max,Value_HC_Summer_max,Value_LC_Summer_max]))*0.273  #Fraction of soil to be treated like forest for calc
+Value_ag_Summer_min = np.mean(np.array([Value_Ref_Summer_min,Value_HC_Summer_min,Value_LC_Summer_min]))*0.273  #Fraction of soil to be treated like forest for calc
+Value_ag_Summer_delta = np.mean(np.array([Value_Ref_Summer_delta,Value_HC_Summer_delta,Value_LC_Summer_delta]))*0.273  #Fraction of soil to be treated like forest for calc
+Value_ag_Winter_max = np.mean(np.array([Value_Ref_Winter_max,Value_HC_Winter_max, Value_LC_Winter_max]))*0.273  #Fraction of soil to be treated like forest for calc
+Value_ag_Winter_min = np.mean(np.array([Value_Ref_Winter_min,Value_HC_Winter_min, Value_LC_Winter_min]))*0.273  #Fraction of soil to be treated like forest for calc
+Value_ag_Winter_delta = np.mean(np.array([Value_Ref_Winter_delta,Value_HC_Winter_delta, Value_LC_Winter_delta]))*0.273  #Fraction of soil to be treated like forest for calc
 print "Maximum Basin-wide stored soil water in ag (Annual) = ", Value_ag," cm"
 print "Basin-wide stored soil water in ag (Summer avg max) = ", Value_ag_Summer_max," cm"
 print "Basin-wide stored soil water in ag (Summer avg min) = ", Value_ag_Summer_min," cm"
