@@ -55,7 +55,9 @@ acre_to_m2 = 4046.86
 Willamette_Basin_area = 29728.*1.e6  # m2
 Willamette_Basin_area_at_PDX = 11200.*math.pow(5280.*.3048,2) #11200 sq mi @ PDX taken from http://waterdata.usgs.gov/nwis/inventory/?site_no=14211720&agency_cd=USGS
 seconds_in_yr = 86400.*365
+seconds_in_day = 86400.
 days_in_15_yrs = 15*365
+days_in_30_yrs = 30*365
 days_in_60_yrs = 60*365
 
 #path_data = "C:\\Users\\haggertr\\Desktop\\Roy\\Research\\WW2100\\Research\\results2\\files\\"
