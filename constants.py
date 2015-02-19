@@ -43,6 +43,7 @@ day_of_year_oct16 = 289
 day_of_year_oct31 = 304
 day_of_year_nov1 = 305
 day_of_year_dec1 = 335
+day_of_year_dec31 = 365
 
 Jan1_1900 = datetime.date(1900,1,1)
 Jan1_2010 = datetime.date(2010,1,1)

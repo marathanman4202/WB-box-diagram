@@ -1,0 +1,5 @@
+Notes
+
+era = past or future
+period = winter, summer, months
+time = period_secs, period_days
