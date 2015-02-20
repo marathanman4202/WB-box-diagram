@@ -1,14 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Sep 26 12:37:07 2014
-
-@author: haggertr
-"""
+# Roy Haggerty
+# Sep 2014 - Feb 2015
+# Code to automatically calculate Willamette Basin water budget from
+#   Envision output
 
 import numpy as np
 import constants as cst   # constants.py contains constants used here
 from matrix_from_xls import matrix_from_xls as mfx
 from Rectangle import np_rec_calc as nrc
+from overlap import overlap
 
 shft = 365 - cst.day_of_year_oct1
 summer_start = cst.day_of_year_jun1 + shft
@@ -23,7 +22,7 @@ winter_secs = winter_days*86400
 np.set_printoptions(precision=3)
 
 era = 'future'
-period = 'seasons'
+period = 'months'
 
 if era == 'future':
     scenario = 'HighClim'
@@ -32,7 +31,23 @@ elif era == 'past':
     scenario = 'Historical'
 
 if period == 'months':
-    pass
+    num_periods = 12
+    period_name = ['Oct','Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May',
+                   'Jun', 'Jul', 'Aug', 'Sep']
+    period_start = [cst.day_of_year_oct1 + shft - 365, cst.day_of_year_nov1 + shft - 365,
+                    cst.day_of_year_dec1 + shft - 365, cst.day_of_year_jan1 + shft,
+                    cst.day_of_year_feb1 + shft, cst.day_of_year_mar1 + shft,
+                    cst.day_of_year_apr1 + shft, cst.day_of_year_may1 + shft,
+                    cst.day_of_year_jun1 + shft, cst.day_of_year_jul1 + shft,
+                    cst.day_of_year_aug1 + shft, cst.day_of_year_sep1 + shft]  
+    period_end =   [cst.day_of_year_oct31 + shft - 365, cst.day_of_year_nov30 + shft - 365,
+                    cst.day_of_year_dec31 + shft - 365, cst.day_of_year_jan31 + shft,
+                    cst.day_of_year_feb28 + shft, cst.day_of_year_mar31 + shft,
+                    cst.day_of_year_apr30 + shft, cst.day_of_year_may31 + shft,
+                    cst.day_of_year_jun30 + shft, cst.day_of_year_jul31 + shft,
+                    cst.day_of_year_aug31 + shft, cst.day_of_year_sep30 + shft]
+    period_days = [period_end[i] - period_start[i] + 1 for i in range(num_periods)]
+    period_secs = [period_days[i]*86400 for i in range(num_periods)]
 elif period == 'seasons':  # [0] is summer; [1] is winter
     num_periods = 2
     period_name = ['Summer','Winter']
@@ -282,8 +297,6 @@ print "Municipal & domestic water diverted (Annual) = ", Value*100/cst.Willamett
 for i in range(num_periods):
     print "Municipal & domestic water diverted (", period_name[i], ") = ", Value_Ref[i]," cm"
 
-assert False
-
 import EF_rules as efr
 EFrules = efr.get_EFrules()
 keys = ['Salem']
@@ -292,27 +305,40 @@ EF_rules_list = sorted(EF_rules_list, key=lambda x: x[0])  # order list by numbe
 EF_rules_list = [EF_rules_list[i][1] for i in range(1)]
 EF_rules = EF_rules_list[0]
 num_rules = len(EF_rules)
+rules = range(num_rules)
 vol = 0.
-for i in range(num_rules):
+for i in rules:
     num_days = EF_rules[i][2] - EF_rules[i][1]
     minQ = EF_rules[i][3]
     if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
 specific_minQ = vol/cst.Willamette_Basin_area
 print 'Minimum flows at Salem (Annual) = ', specific_minQ*100.,' cm'
 
-Winter_rules =[0,1,4,5,12]
-Summer_rules =[2,3,6,7,8,9,10,11]
-vol = 0.
-for i in Summer_rules:
-    num_days = EF_rules[i][2] - EF_rules[i][1]
-    minQ = EF_rules[i][3]
-    if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
-specific_minQ = vol/cst.Willamette_Basin_area
-print 'Minimum flows at Salem (Summer) = ', specific_minQ*100.,' cm'
-vol = 0.
-for i in Winter_rules:
-    num_days = EF_rules[i][2] - EF_rules[i][1]
-    minQ = EF_rules[i][3]
-    if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
-specific_minQ = vol/cst.Willamette_Basin_area
-print 'Minimum flows at Salem (Winter) = ', specific_minQ*100.,' cm'
+i_period = -1
+for period in period_name:
+    i_period += 1
+    vol = 0.    
+    for i in rules:
+        num_days = overlap(EF_rules[i][1], EF_rules[i][2], period_start[i_period], period_end[i_period]) # overlapping days between rule and period
+        minQ = EF_rules[i][3]
+        if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
+    specific_minQ = vol/cst.Willamette_Basin_area
+    print "Minimum flows at Salem (", period_name[i_period], ") = ", specific_minQ*100.," cm"
+    vol = 0.
+
+#Winter_rules =[0,1,4,5,12]
+#Summer_rules =[2,3,6,7,8,9,10,11]
+#vol = 0.
+#for i in Summer_rules:
+#    num_days = EF_rules[i][2] - EF_rules[i][1]
+#    minQ = EF_rules[i][3]
+#    if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
+#specific_minQ = vol/cst.Willamette_Basin_area
+#print 'Minimum flows at Salem (Summer) = ', specific_minQ*100.,' cm'
+#vol = 0.
+#for i in Winter_rules:
+#    num_days = EF_rules[i][2] - EF_rules[i][1]
+#    minQ = EF_rules[i][3]
+#    if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
+#specific_minQ = vol/cst.Willamette_Basin_area
+#print 'Minimum flows at Salem (Winter) = ', specific_minQ*100.,' cm'

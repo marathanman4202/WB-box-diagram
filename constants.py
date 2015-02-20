@@ -9,6 +9,7 @@ import math
 day_of_year_jan1 = 1
 day_of_year_jan31 = 31
 day_of_year_feb1 = 32
+day_of_year_feb28 = 59
 day_of_year_mar1 = 60
 day_of_year_mar15 = 74
 day_of_year_mar16 = 75
@@ -42,6 +43,7 @@ day_of_year_oct15 = 288
 day_of_year_oct16 = 289
 day_of_year_oct31 = 304
 day_of_year_nov1 = 305
+day_of_year_nov30 = 334
 day_of_year_dec1 = 335
 day_of_year_dec31 = 365
 
@@ -61,5 +63,5 @@ days_in_15_yrs = 15*365
 days_in_30_yrs = 30*365
 days_in_60_yrs = 60*365
 
-#path_data = "C:\\Users\\haggertr\\Desktop\\Roy\\Research\\WW2100\\Research\\results2\\files\\"
-path_data = "C:\\Users\\haggertr\\Desktop\\Documents\\work - OSU\\research\\WW2100\\Research\\results2\\files\\"
+path_data = "C:\\Users\\haggertr\\Desktop\\Roy\\Research\\WW2100\\Research\\results2\\files\\"
+#path_data = "C:\\Users\\haggertr\\Desktop\\Documents\\work - OSU\\research\\WW2100\\Research\\results2\\files\\"
