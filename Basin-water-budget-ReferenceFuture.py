@@ -30,6 +30,8 @@ if era == 'future':
 elif era == 'past':
     scenario = 'Historical'
 
+table = []
+
 if period == 'months':
     num_periods = 12
     period_name = ['Oct','Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May',
@@ -55,6 +57,10 @@ elif period == 'seasons':  # [0] is summer; [1] is winter
     period_end =   [cst.day_of_year_sep30 + shft, cst.day_of_year_may31 + shft]
     period_days = [period_end[i] - period_start[i] + 1 for i in range(num_periods)]
     period_secs = [period_days[i]*86400 for i in range(num_periods)]
+    
+row = ['Order', 'Flux','Annual (cm)']
+row.extend([period_name[i] + ' (cm)' for i in range(num_periods)])
+table.append(row)
 
 Col_num = 1
 file_model_csv = "Willamette_at_Portland_(m3_s)_" + scenario + "_Run0.csv"
@@ -69,6 +75,11 @@ print "Willamette at Portland (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Willamette at Portland (", period_name[i], ") = ", Value_Ref[i]," cm"
 
+row = [100, 'Willamette at Portland']
+row.append(Value)
+row.extend([Value_Ref[i] for i in range(num_periods)])
+table.append(row)
+
 Col_num = 2
 file_model_csv = "Climate_" + scenario + "_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -81,6 +92,10 @@ Value = nrc(data_v1,[59, 1],[89,365])*365./10.
 print "Basin-wide avg Precip (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Basin-wide avg Precip (", period_name[i], ") = ", Value_Ref[i]," cm"
+row = [1, 'Basin-wide avg Precip']
+row.append(Value)
+row.extend([Value_Ref[i] for i in range(num_periods)])
+table.append(row)
 
 Col_num = 1
 file_model_csv = "Snow_(mm)_" + scenario + "_Run0.csv"
@@ -97,6 +112,14 @@ print "Basin-wide max SWE (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Basin-wide max SWE (", period_name[i], ") = ", Value_Ref_Max[i]," cm"
     print "Basin-wide min SWE (", period_name[i], ") = ", Value_Ref_Min[i]," cm"
+row = [2, 'Basin-wide Max SWE']
+row.append(Value)
+row.extend([Value_Ref_Max[i] for i in range(num_periods)])
+table.append(row)
+row = [3, 'Basin-wide Min SWE']
+row.append(0.)
+row.extend([Value_Ref_Min[i] for i in range(num_periods)])
+table.append(row)
 
 # Calculate storage in soil water content as follows
 # Sum the soil water in the 4 categories of forest soil.  Do the same (further below) for ag
@@ -166,6 +189,18 @@ for i in range(num_periods):
     print "Basin-wide stored soil water whole WB (", period_name[i], " avg max) = ", sum_Value_max[i]," cm"
     print "Basin-wide stored soil water whole WB (", period_name[i], " avg min) = ", sum_Value_min[i]," cm"
     print "Basin-wide stored soil water whole WB (", period_name[i], " avg delta) = ", sum_Value_delta[i]," cm"
+row = [4, 'Basin-wide Max soil water']
+row.append(sum_Value)
+row.extend([Value_Ref_max[i] for i in range(num_periods)])
+table.append(row)
+row = [5, 'Basin-wide Min soil water']
+row.append(' ')
+row.extend([Value_Ref_min[i] for i in range(num_periods)])
+table.append(row)
+row = [6, 'Basin-wide Delta soil water']
+row.append(' ')
+row.extend([Value_Ref_delta[i] for i in range(num_periods)])
+table.append(row)
 
 
 Col_num = 1
@@ -193,7 +228,10 @@ for place in ['Forest','Ag']:
     print "Basin-wide avg", place, "AET (Annual) = ", Value," cm"
     for i in range(num_periods):
         print "Basin-wide avg", place, "AET (", period_name[i], ") = ", Value_Ref[i]," cm"
-
+row = [7, 'Basin-wide AET']
+row.append(Value)
+row.extend([Value_Ref[i] for i in range(num_periods)])
+table.append(row)
 
 # http://www.oregon.gov/owrd/docs/1998_04_Willamette_Brochure.pdf
 WVP_Vol_summer = (93900+28700+281600+65000+194600+24800+249900+324200+78800+143900+108200)*cst.acft_to_m3/cst.Willamette_Basin_area*100.   #info from web on summer vol
@@ -243,6 +281,10 @@ for i in range(num_periods):
     print "All reservoirs", period_name[i], "delta = ",  Value_Ref_delta[i]," cm"
     print "All reservoirs", period_name[i], "min = ",    Value_Ref_min[i],  " cm"
     print "All reservoirs", period_name[i], "max = ",    Value_Ref_max[i],  " cm"
+row = [8, 'All reservoirs delta']
+row.append(sum(Value_Ref_delta))
+row.extend([Value_Ref_delta[i] for i in range(num_periods)])
+table.append(row)
 
 Col_num = 1
 file_model_csv = "Daily_WaterMaster_Metrics_" + scenario + "_Run0.csv"
@@ -264,6 +306,10 @@ Value = nrc(data_v1,[59, 1],[89,365])*cst.seconds_in_yr/cst.Willamette_Basin_are
 print "Irrigation water diverted (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Irrigation water diverted (", period_name[i], ") = ", Value_Ref[i]," cm"
+row = [9, 'Irrigation']
+row.append(Value)
+row.extend([Value_Ref[i] for i in range(num_periods)])
+table.append(row)
 
 file_model_csv = "Urban_Population_" + scenario + "_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -296,6 +342,10 @@ Value_Ref = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]])*100*period_da
 print "Municipal & domestic water diverted (Annual) = ", Value*100/cst.Willamette_Basin_area," cm"
 for i in range(num_periods):
     print "Municipal & domestic water diverted (", period_name[i], ") = ", Value_Ref[i]," cm"
+row = [10, 'Municipal & domestic']
+row.append(Value*100/cst.Willamette_Basin_area)
+row.extend([Value_Ref[i] for i in range(num_periods)])
+table.append(row)
 
 import EF_rules as efr
 EFrules = efr.get_EFrules()
@@ -315,6 +365,7 @@ specific_minQ = vol/cst.Willamette_Basin_area
 print 'Minimum flows at Salem (Annual) = ', specific_minQ*100.,' cm'
 
 i_period = -1
+minflows = []
 for period in period_name:
     i_period += 1
     vol = 0.    
@@ -323,22 +374,16 @@ for period in period_name:
         minQ = EF_rules[i][3]
         if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
     specific_minQ = vol/cst.Willamette_Basin_area
+    minflows.append(specific_minQ)
     print "Minimum flows at Salem (", period_name[i_period], ") = ", specific_minQ*100.," cm"
     vol = 0.
+row = [11, 'Minimum flows at Salem']
+row.append(specific_minQ*100)
+row.extend([minflows[i] for i in range(num_periods)])
+table.append(row)
 
-#Winter_rules =[0,1,4,5,12]
-#Summer_rules =[2,3,6,7,8,9,10,11]
-#vol = 0.
-#for i in Summer_rules:
-#    num_days = EF_rules[i][2] - EF_rules[i][1]
-#    minQ = EF_rules[i][3]
-#    if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
-#specific_minQ = vol/cst.Willamette_Basin_area
-#print 'Minimum flows at Salem (Summer) = ', specific_minQ*100.,' cm'
-#vol = 0.
-#for i in Winter_rules:
-#    num_days = EF_rules[i][2] - EF_rules[i][1]
-#    minQ = EF_rules[i][3]
-#    if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
-#specific_minQ = vol/cst.Willamette_Basin_area
-#print 'Minimum flows at Salem (Winter) = ', specific_minQ*100.,' cm'
+import csv
+
+with open("Willamette_water_budget.csv", "wb") as f:
+    writer = csv.writer(f)
+    writer.writerows(table)
