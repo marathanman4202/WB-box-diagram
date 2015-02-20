@@ -22,13 +22,15 @@ winter_secs = winter_days*86400
 np.set_printoptions(precision=3)
 
 era = 'future'
-period = 'months'
+period = 'seasons'
 
 if era == 'future':
     scenario = 'HighClim'
     # scenario = 'Ref'
+    postscript = scenario + '_2070-2100' + '_' + period
 elif era == 'past':
     scenario = 'Historical'
+    postscript = scenario + '1950-2010' + '_' + period
 
 table = []
 
@@ -58,9 +60,10 @@ elif period == 'seasons':  # [0] is summer; [1] is winter
     period_days = [period_end[i] - period_start[i] + 1 for i in range(num_periods)]
     period_secs = [period_days[i]*86400 for i in range(num_periods)]
     
+header = []
 row = ['Order', 'Flux','Annual (cm)']
 row.extend([period_name[i] + ' (cm)' for i in range(num_periods)])
-table.append(row)
+header.append(row)
 
 Col_num = 1
 file_model_csv = "Willamette_at_Portland_(m3_s)_" + scenario + "_Run0.csv"
@@ -213,6 +216,10 @@ Value = nrc(data_v1,[59, 1],[89,365])*365./10.
 print "Basin-wide avg AET (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Basin-wide avg AET (", period_name[i], ") = ", Value_Ref[i]," cm"
+row = [7, 'Basin-wide AET']
+row.append(Value)
+row.extend([Value_Ref[i] for i in range(num_periods)])
+table.append(row)
 
 Col_num = [1,3]
 file_model_csv = "ET_by_LandCover_(mm)_" + scenario + "_Run0.csv"
@@ -228,10 +235,6 @@ for place in ['Forest','Ag']:
     print "Basin-wide avg", place, "AET (Annual) = ", Value," cm"
     for i in range(num_periods):
         print "Basin-wide avg", place, "AET (", period_name[i], ") = ", Value_Ref[i]," cm"
-row = [7, 'Basin-wide AET']
-row.append(Value)
-row.extend([Value_Ref[i] for i in range(num_periods)])
-table.append(row)
 
 # http://www.oregon.gov/owrd/docs/1998_04_Willamette_Brochure.pdf
 WVP_Vol_summer = (93900+28700+281600+65000+194600+24800+249900+324200+78800+143900+108200)*cst.acft_to_m3/cst.Willamette_Basin_area*100.   #info from web on summer vol
@@ -270,7 +273,7 @@ Value_Ref_out   = [nrc(data_v_out,[59, period_start[i]],[89,period_end[i]])*peri
 Value_Ref_delta = [nrc(data_v_delta, [59, period_start[i]],[89,period_end[i]])*period_days[i]*86400./cst.Willamette_Basin_area*100. for i in range(num_periods)]
 Value_Ref_min   = [nrc(data_v_cumsum,[59, period_start[i]],[89,period_end[i]],oper='AverageMin')/cst.Willamette_Basin_area*100. for i in range(num_periods)]
 Value_Ref_max   = [nrc(data_v_cumsum,[59, period_start[i]],[89,period_end[i]],oper='AverageMax')/cst.Willamette_Basin_area*100. for i in range(num_periods)]
-
+Value_Ref_maxmin= [Value_Ref_max[i] - Value_Ref_min[i] for i in range(num_periods)]
 print "Values from Envision calcs: "
 print "All reservoirs annual input = ",  sum(Value_Ref_in),   " cm"
 print "All reservoirs annual output = ", sum(Value_Ref_out),  " cm"
@@ -281,9 +284,14 @@ for i in range(num_periods):
     print "All reservoirs", period_name[i], "delta = ",  Value_Ref_delta[i]," cm"
     print "All reservoirs", period_name[i], "min = ",    Value_Ref_min[i],  " cm"
     print "All reservoirs", period_name[i], "max = ",    Value_Ref_max[i],  " cm"
-row = [8, 'All reservoirs delta']
+    print "All reservoirs", period_name[i], "max-min",   Value_Ref_maxmin[i], "cm"
+row = [3.5, 'All reservoirs delta']
 row.append(sum(Value_Ref_delta))
 row.extend([Value_Ref_delta[i] for i in range(num_periods)])
+table.append(row)
+row = [3.7, 'All reservoirs max - min']
+row.append(sum(Value_Ref_delta))
+row.extend([Value_Ref_maxmin[i] for i in range(num_periods)])
 table.append(row)
 
 Col_num = 1
@@ -382,8 +390,11 @@ row.append(specific_minQ*100)
 row.extend([minflows[i] for i in range(num_periods)])
 table.append(row)
 
+table.sort(key=lambda x: x[0])
+
 import csv
 
-with open("Willamette_water_budget.csv", "wb") as f:
+with open("Willamette_water_budget_" + postscript + ".csv", "wb") as f:
     writer = csv.writer(f)
+    writer.writerows(header)
     writer.writerows(table)
