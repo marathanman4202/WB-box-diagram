@@ -22,7 +22,7 @@ winter_secs = winter_days*86400
 np.set_printoptions(precision=3)
 
 era = 'future'
-period = 'seasons'
+period = 'months'
 
 if era == 'future':
     scenario = 'HighClim'
@@ -382,12 +382,15 @@ for period in period_name:
         minQ = EF_rules[i][3]
         if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
     specific_minQ = vol/cst.Willamette_Basin_area
-    minflows.append(specific_minQ)
+    minflows.append(specific_minQ*100.)
     print "Minimum flows at Salem (", period_name[i_period], ") = ", specific_minQ*100.," cm"
     vol = 0.
 row = [11, 'Minimum flows at Salem']
 row.append(specific_minQ*100)
 row.extend([minflows[i] for i in range(num_periods)])
+table.append(row)
+row = [11.5, 'Willamette minus min flows at Salem']
+row.extend([table[0][i] - table[-1][i] for i in range(2,num_periods+3)])
 table.append(row)
 
 table.sort(key=lambda x: x[0])
