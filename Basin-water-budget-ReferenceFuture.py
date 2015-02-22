@@ -21,16 +21,22 @@ winter_secs = winter_days*86400
 
 np.set_printoptions(precision=3)
 
-era = 'future'
+era = 'past'
 period = 'months'
 
 if era == 'future':
     #  scenario = 'HighClim'
     scenario = 'Ref'
     postscript = scenario + '_2070-2100' + '_' + period
+    total_days_in_calculation = cst.days_in_30_yrs
+    data_yr_start = 59
+    data_yr_end = 89
 elif era == 'past':
-    scenario = 'Historical'
+    scenario = 'Historic'
     postscript = scenario + '1950-2010' + '_' + period
+    total_days_in_calculation = cst.days_in_60_yrs
+    data_yr_start = 0
+    data_yr_end = 59
 
 table = []
 
@@ -69,11 +75,11 @@ Col_num = 1
 file_model_csv = "Willamette_at_Portland_(m3_s)_" + scenario + "_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_Ref = np.mean((np.array(data_v[:,Col_num]))[:(cst.days_in_30_yrs-1)])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value_Ref = np.mean((np.array(data_v[:,Col_num]))[:(total_days_in_calculation-1)])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
 data_v1 = mfx(file_model_csv_w_path, column=Col_num, skip=cst.day_of_year_oct1) # Read csv file into matrix
-Value_Ref = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]])*period_secs[i]/cst.Willamette_Basin_area_at_PDX*100. for i in range(num_periods)]
+Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_secs[i]/cst.Willamette_Basin_area_at_PDX*100. for i in range(num_periods)]
 
-Value = nrc(data_v1,[59, 1],[89,365])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
 print "Willamette at Portland (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Willamette at Portland (", period_name[i], ") = ", Value_Ref[i]," cm"
@@ -87,11 +93,11 @@ Col_num = 2
 file_model_csv = "Climate_" + scenario + "_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_Ref = np.mean((np.array(data_v[:,Col_num]))[:(cst.days_in_30_yrs-1)])*365/10.
+Value_Ref = np.mean((np.array(data_v[:,Col_num]))[:(total_days_in_calculation-1)])*365/10.
 data_v1 = mfx(file_model_csv_w_path, column=Col_num, skip=cst.day_of_year_oct1) # Read csv file into matrix
-Value_Ref = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]])*period_days[i]/10. for i in range(num_periods)]
+Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]/10. for i in range(num_periods)]
 
-Value = nrc(data_v1,[59, 1],[89,365])*365./10.
+Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*365./10.
 print "Basin-wide avg Precip (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Basin-wide avg Precip (", period_name[i], ") = ", Value_Ref[i]," cm"
@@ -104,13 +110,13 @@ Col_num = 1
 file_model_csv = "Snow_(mm)_" + scenario + "_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_Ref = np.mean([np.max(np.array(data_v[i*365:(i+1)*365,Col_num])) for i in range(59,90)])/10. #avg over max of each of 30 yrs
+Value_Ref = np.mean([np.max(np.array(data_v[i*365:(i+1)*365,Col_num])) for i in range(data_yr_start,data_yr_end+1)])/10. #avg over max of each of 30 yrs
 data_v1 = mfx(file_model_csv_w_path, column=Col_num, skip=cst.day_of_year_oct1) # Read csv file into matrix
-Value_Ref_Max = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMaximum')/10. for i in range(num_periods)]
-Value_Ref_Min = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMinimum')/10. for i in range(num_periods)]
+Value_Ref_Max = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]],oper='AverageMaximum')/10. for i in range(num_periods)]
+Value_Ref_Min = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]],oper='AverageMinimum')/10. for i in range(num_periods)]
 
 #Value = np.mean(np.array([Value_Ref]))
-Value = nrc(data_v1,[59, 1],[89,365],'AverageMaximum')/10.
+Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365],'AverageMaximum')/10.
 print "Basin-wide max SWE (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Basin-wide max SWE (", period_name[i], ") = ", Value_Ref_Max[i]," cm"
@@ -128,8 +134,8 @@ table.append(row)
 # Sum the soil water in the 4 categories of forest soil.  Do the same (further below) for ag
 # Take the difference between the max and the min as the storage
 
+fraction_of_landscape = [0.727, 0.273]
 #Col_num = range(1,5)
-#fraction_of_landscape = [0.727, 0.273]
 #sum_Value = 0.
 #sum_Value_max =   [0.]*num_periods
 #sum_Value_min =   [0.]*num_periods
@@ -143,34 +149,34 @@ table.append(row)
 #    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 #    print file_model_csv_w_path
 #    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-#    Value_Ref = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. -\
-#                np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. #max of 30 yrs 
+#    Value_Ref = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(data_yr_start,data_yr_end+1)])/10. -\
+#                np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(data_yr_start,data_yr_end+1)])/10. #max of 30 yrs 
 #          
 #    data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
-#    Value_Ref_max = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMax') for i in range(num_periods)]
-#    Value_Ref_min = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMin') for i in range(num_periods)]
+#    Value_Ref_max = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]],oper='AverageMax') for i in range(num_periods)]
+#    Value_Ref_min = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]],oper='AverageMin') for i in range(num_periods)]
 #    Value_Ref_delta = [Value_Ref_max[i] - Value_Ref_min[i] for i in range(num_periods)]
 #    
 #    file_model_csv = file_model_csv.replace(scenario, "HighClim")
 #    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 #    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-#    Value_HC = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. -\
-#               np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. #max of 30 yrs 
+#    Value_HC = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(data_yr_start,data_yr_end+1)])/10. -\
+#               np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(data_yr_start,data_yr_end+1)])/10. #max of 30 yrs 
 #    
 #    data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
-#    Value_HC_max = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMax') for i in range(num_periods)]
-#    Value_HC_min = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMin') for i in range(num_periods)]
+#    Value_HC_max = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]],oper='AverageMax') for i in range(num_periods)]
+#    Value_HC_min = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]],oper='AverageMin') for i in range(num_periods)]
 #    Value_HC_delta = [Value_Ref_max[i] - Value_Ref_min[i] for i in range(num_periods)]
 #    
 #    file_model_csv = file_model_csv.replace("HighClim", "LowClim")
 #    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 #    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-#    Value_LC = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. -\
-#               np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. #max of 30 yrs 
+#    Value_LC = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(data_yr_start,data_yr_end+1)])/10. -\
+#               np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(data_yr_start,data_yr_end+1)])/10. #max of 30 yrs 
 #    
 #    data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
-#    Value_LC_max = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMax') for i in range(num_periods)]
-#    Value_LC_min = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMin') for i in range(num_periods)]
+#    Value_LC_max = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]],oper='AverageMax') for i in range(num_periods)]
+#    Value_LC_min = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]],oper='AverageMin') for i in range(num_periods)]
 #    Value_LC_delta = [Value_Ref_max[i] - Value_Ref_min[i] for i in range(num_periods)]
 #    
 #    Value = np.mean(np.array([Value_Ref]))*fraction_of_landscape[i_place] #Fraction of soil to be treated like forest for calc
@@ -211,9 +217,9 @@ Col_num = 1
 file_model_csv = "ET_by_Elevation_(mm)_" + scenario + "_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v1 = mfx(file_model_csv_w_path, column=Col_num, skip=cst.day_of_year_oct1) # Read csv file into matrix
-Value_Ref = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]])*period_days[i]/10. for i in range(num_periods)]
+Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]/10. for i in range(num_periods)]
 
-Value = nrc(data_v1,[59, 1],[89,365])*365./10.
+Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*365./10.
 print "Basin-wide avg AET (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Basin-wide avg AET (", period_name[i], ") = ", Value_Ref[i]," cm"
@@ -230,9 +236,9 @@ i_place = -1
 for place in ['Forest','Ag']:
     i_place += 1
     data_v1 = mfx(file_model_csv_w_path, column=Col_num[i_place], skip=cst.day_of_year_oct1) # Read csv file into matrix
-    Value_Ref = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]])*period_days[i]/10.*fraction_of_landscape[i_place] for i in range(num_periods)]
+    Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]/10.*fraction_of_landscape[i_place] for i in range(num_periods)]
 
-    Value = nrc(data_v1,[59, 1],[89,365])*365./10.*fraction_of_landscape[i_place]
+    Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*365./10.*fraction_of_landscape[i_place]
     print "Basin-wide avg", place, "AET (Annual) = ", Value," cm"
     for i in range(num_periods):
         print "Basin-wide avg", place, "AET (", period_name[i], ") = ", Value_Ref[i]," cm"
@@ -268,12 +274,12 @@ for file_name in file_list:
     data_v_out =   np.add(data_v_out, data_tmp)
 data_v_delta = np.subtract(data_v_in,data_v_out)
 data_v_cumsum = np.cumsum(data_v_delta*86400,axis=1)
-#Value_Ref =      [nrc(data_v1,[59, period_start[i]],[89,period_end[i]])*period_days[i]/10. for i in range(num_periods)]
-Value_Ref_in    = [nrc(data_v_in,[59, period_start[i]],[89,period_end[i]])*period_days[i]*86400./cst.Willamette_Basin_area*100. for i in range(num_periods)]
-Value_Ref_out   = [nrc(data_v_out,[59, period_start[i]],[89,period_end[i]])*period_days[i]*86400./cst.Willamette_Basin_area*100. for i in range(num_periods)]
-Value_Ref_delta = [nrc(data_v_delta, [59, period_start[i]],[89,period_end[i]])*period_days[i]*86400./cst.Willamette_Basin_area*100. for i in range(num_periods)]
-Value_Ref_min   = [nrc(data_v_cumsum,[59, period_start[i]],[89,period_end[i]],oper='AverageMin')/cst.Willamette_Basin_area*100. for i in range(num_periods)]
-Value_Ref_max   = [nrc(data_v_cumsum,[59, period_start[i]],[89,period_end[i]],oper='AverageMax')/cst.Willamette_Basin_area*100. for i in range(num_periods)]
+#Value_Ref =      [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]/10. for i in range(num_periods)]
+Value_Ref_in    = [nrc(data_v_in,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]*86400./cst.Willamette_Basin_area*100. for i in range(num_periods)]
+Value_Ref_out   = [nrc(data_v_out,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]*86400./cst.Willamette_Basin_area*100. for i in range(num_periods)]
+Value_Ref_delta = [nrc(data_v_delta, [data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]*86400./cst.Willamette_Basin_area*100. for i in range(num_periods)]
+Value_Ref_min   = [nrc(data_v_cumsum,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]],oper='AverageMin')/cst.Willamette_Basin_area*100. for i in range(num_periods)]
+Value_Ref_max   = [nrc(data_v_cumsum,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]],oper='AverageMax')/cst.Willamette_Basin_area*100. for i in range(num_periods)]
 Value_Ref_maxmin= [Value_Ref_max[i] - Value_Ref_min[i] for i in range(num_periods)]
 print "Values from Envision calcs: "
 print "All reservoirs annual input = ",  sum(Value_Ref_in),   " cm"
@@ -300,18 +306,18 @@ file_model_csv = "Daily_WaterMaster_Metrics_" + scenario + "_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
 data_v1 = mfx(file_model_csv_w_path, column=Col_num, skip=cst.day_of_year_oct1) # Read csv file into matrix
-Value_Ref = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]])*period_secs[i]/cst.Willamette_Basin_area_at_PDX*100. for i in range(num_periods)]
+Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_secs[i]/cst.Willamette_Basin_area_at_PDX*100. for i in range(num_periods)]
 
-Value = nrc(data_v1,[59, 1],[89,365])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
+Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*cst.seconds_in_yr/cst.Willamette_Basin_area_at_PDX*100.
 print "Instream regulatory use (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Instream regulatory use (", period_name[i], ") = ", Value_Ref[i]," cm"
  
 Col_num = [2,3]
 data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)  # Read csv file cols into matrices and sum the matrices
-Value_Ref = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]])*period_secs[i]/cst.Willamette_Basin_area*100. for i in range(num_periods)]
+Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_secs[i]/cst.Willamette_Basin_area*100. for i in range(num_periods)]
 
-Value = nrc(data_v1,[59, 1],[89,365])*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
+Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
 print "Irrigation water diverted (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Irrigation water diverted (", period_name[i], ") = ", Value_Ref[i]," cm"
@@ -323,30 +329,33 @@ table.append(row)
 file_model_csv = "Urban_Population_" + scenario + "_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-UrbPop = np.mean(np.sum(np.array(data_v[1:,1:][59:90]),1))
-Metro_Pop = np.mean(np.array(data_v[59:90,1]))
+UrbPop = np.mean(np.sum(np.array(data_v[1:,1:][data_yr_start:data_yr_end+1]),1))
+Metro_Pop = np.mean(np.array(data_v[data_yr_start:data_yr_end+1,1]))
 
 file_model_csv = "Rural_Residential_Population_" + scenario + "_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-RurPop = np.mean(np.sum(np.array(data_v[1:,1:][59:90]),1))
+RurPop = np.mean(np.sum(np.array(data_v[1:,1:][data_yr_start:data_yr_end+1]),1))
 
 Basin_Pop = UrbPop + RurPop
 print "Population = ", Basin_Pop
 
-file_model_csv = "UrbanWaterDemand(_ccf_per_day_)_" + scenario + "_Run0.csv"
-file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-Value_Ref = np.mean(np.sum(np.column_stack((np.array(data_v[59:90,1]),np.array(data_v[59:90,9]))),1))*100*365*cst.cfs_to_m3 # in m3
-Value_Ref = Value_Ref*Basin_Pop/Metro_Pop
-Value = np.mean(np.array([Value_Ref]))
-print "Water use per person = ", Value*1000/3.785/365/Basin_Pop, " gal/day/person"
+if era == 'future':
+    file_model_csv = "UrbanWaterDemand(_ccf_per_day_)_" + scenario + "_Run0.csv"
+    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
+    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
+    Value_Ref = np.mean(np.sum(np.column_stack((np.array(data_v[data_yr_start:data_yr_end+1,1]),np.array(data_v[data_yr_start:data_yr_end+1,9]))),1))*100*365*cst.cfs_to_m3 # in m3
+    Value_Ref = Value_Ref*Basin_Pop/Metro_Pop
+    Value = np.mean(np.array([Value_Ref]))
+    print "Water use per person = ", Value*1000/3.785/365/Basin_Pop, " gal/day/person"
+else:
+    pass
 
 Col_num = range(1,9)
 file_model_csv = "Daily_Urban_Water_Demand_Summary_" + scenario + "_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
 data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)  # Read csv file cols into matrices and sum the matrices
-Value_Ref = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]])*100*period_days[i]*cst.cfs_to_m3/cst.Willamette_Basin_area*100.*1.11386 for i in range(num_periods)]
+Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*100*period_days[i]*cst.cfs_to_m3/cst.Willamette_Basin_area*100.*1.11386 for i in range(num_periods)]
 
 print "Municipal & domestic water diverted (Annual) = ", Value*100/cst.Willamette_Basin_area," cm"
 for i in range(num_periods):
