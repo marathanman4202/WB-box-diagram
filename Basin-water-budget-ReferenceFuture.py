@@ -25,8 +25,8 @@ era = 'future'
 period = 'months'
 
 if era == 'future':
-    scenario = 'HighClim'
-    # scenario = 'Ref'
+    #  scenario = 'HighClim'
+    scenario = 'Ref'
     postscript = scenario + '_2070-2100' + '_' + period
 elif era == 'past':
     scenario = 'Historical'
@@ -128,82 +128,83 @@ table.append(row)
 # Sum the soil water in the 4 categories of forest soil.  Do the same (further below) for ag
 # Take the difference between the max and the min as the storage
 
-Col_num = range(1,5)
-fraction_of_landscape = [0.727, 0.273]
-sum_Value = 0.
-sum_Value_max =   [0.]*num_periods
-sum_Value_min =   [0.]*num_periods
-sum_Value_delta = [0.]*num_periods
-
-i_place = -1
-
-for place in ['Forest','Ag']:
-    i_place += 1  # counter for Forest, Ag
-    file_model_csv = place + "_Water_Content_" + scenario + "_Run0.csv"
-    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-    Value_Ref = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. -\
-                np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. #max of 30 yrs 
-          
-    data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
-    Value_Ref_max = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMax') for i in range(num_periods)]
-    Value_Ref_min = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMin') for i in range(num_periods)]
-    Value_Ref_delta = [Value_Ref_max[i] - Value_Ref_min[i] for i in range(num_periods)]
-    
-    file_model_csv = file_model_csv.replace(scenario, "HighClim")
-    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-    Value_HC = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. -\
-               np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. #max of 30 yrs 
-    
-    data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
-    Value_HC_max = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMax') for i in range(num_periods)]
-    Value_HC_min = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMin') for i in range(num_periods)]
-    Value_HC_delta = [Value_Ref_max[i] - Value_Ref_min[i] for i in range(num_periods)]
-    
-    file_model_csv = file_model_csv.replace("HighClim", "LowClim")
-    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-    Value_LC = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. -\
-               np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. #max of 30 yrs 
-    
-    data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
-    Value_LC_max = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMax') for i in range(num_periods)]
-    Value_LC_min = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMin') for i in range(num_periods)]
-    Value_LC_delta = [Value_Ref_max[i] - Value_Ref_min[i] for i in range(num_periods)]
-    
-    Value = np.mean(np.array([Value_Ref]))*fraction_of_landscape[i_place] #Fraction of soil to be treated like forest for calc
-    Value_max = [np.mean(np.array([Value_Ref_max[i]]))*fraction_of_landscape[i_place] for i in range(num_periods)] #Fraction of soil to be treated like forest for calc
-    Value_min = [np.mean(np.array([Value_Ref_min[i]]))*fraction_of_landscape[i_place] for i in range(num_periods)] #Fraction of soil to be treated like forest for calc
-    Value_delta = [np.mean(np.array([Value_Ref_delta[i]]))*fraction_of_landscape[i_place] for i in range(num_periods)] #Fraction of soil to be treated like forest for calc
-
-    sum_Value += Value
-    sum_Value_max =   [sum_Value_max[i] +   Value_max[i]   for i in range(num_periods)]
-    sum_Value_min =   [sum_Value_min[i] +   Value_min[i]   for i in range(num_periods)]
-    sum_Value_delta = [sum_Value_delta[i] + Value_delta[i] for i in range(num_periods)]
-    print "Maximum Basin-wide stored soil water in", place, "(Annual) = ", Value," cm"
-    for i in range(num_periods):
-        print "Basin-wide stored soil water in", place, "(", period_name[i], "avg max) = ", Value_max[i]," cm"
-        print "Basin-wide stored soil water in", place, "(", period_name[i], "avg min) = ", Value_min[i]," cm"
-        print "Basin-wide stored soil water in", place, "(", period_name[i], "avg delta) = ", Value_delta[i]," cm"
-
-print "Maximum Basin-wide stored soil water whole WB (Annual) = ", sum_Value, " cm"
-for i in range(num_periods):
-    print "Basin-wide stored soil water whole WB (", period_name[i], " avg max) = ", sum_Value_max[i]," cm"
-    print "Basin-wide stored soil water whole WB (", period_name[i], " avg min) = ", sum_Value_min[i]," cm"
-    print "Basin-wide stored soil water whole WB (", period_name[i], " avg delta) = ", sum_Value_delta[i]," cm"
-row = [4, 'Basin-wide Max soil water']
-row.append(sum_Value)
-row.extend([Value_Ref_max[i] for i in range(num_periods)])
-table.append(row)
-row = [5, 'Basin-wide Min soil water']
-row.append(' ')
-row.extend([Value_Ref_min[i] for i in range(num_periods)])
-table.append(row)
-row = [6, 'Basin-wide Delta soil water']
-row.append(' ')
-row.extend([Value_Ref_delta[i] for i in range(num_periods)])
-table.append(row)
+#Col_num = range(1,5)
+#fraction_of_landscape = [0.727, 0.273]
+#sum_Value = 0.
+#sum_Value_max =   [0.]*num_periods
+#sum_Value_min =   [0.]*num_periods
+#sum_Value_delta = [0.]*num_periods
+#
+#i_place = -1
+#
+#for place in ['Forest','Ag']:
+#    i_place += 1  # counter for Forest, Ag
+#    file_model_csv = place + "_Water_Content_" + scenario + "_Run0.csv"
+#    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
+#    print file_model_csv_w_path
+#    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
+#    Value_Ref = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. -\
+#                np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. #max of 30 yrs 
+#          
+#    data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
+#    Value_Ref_max = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMax') for i in range(num_periods)]
+#    Value_Ref_min = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMin') for i in range(num_periods)]
+#    Value_Ref_delta = [Value_Ref_max[i] - Value_Ref_min[i] for i in range(num_periods)]
+#    
+#    file_model_csv = file_model_csv.replace(scenario, "HighClim")
+#    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
+#    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
+#    Value_HC = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. -\
+#               np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. #max of 30 yrs 
+#    
+#    data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
+#    Value_HC_max = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMax') for i in range(num_periods)]
+#    Value_HC_min = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMin') for i in range(num_periods)]
+#    Value_HC_delta = [Value_Ref_max[i] - Value_Ref_min[i] for i in range(num_periods)]
+#    
+#    file_model_csv = file_model_csv.replace("HighClim", "LowClim")
+#    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
+#    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
+#    Value_LC = np.max([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. -\
+#               np.min([np.array(np.sum([data_v[i*365:(i+1)*365,j] for j in Col_num],0)) for i in range(59,90)])/10. #max of 30 yrs 
+#    
+#    data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)/10. # Read csv file cols into matrices and sum the matrices
+#    Value_LC_max = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMax') for i in range(num_periods)]
+#    Value_LC_min = [nrc(data_v1,[59, period_start[i]],[89,period_end[i]],oper='AverageMin') for i in range(num_periods)]
+#    Value_LC_delta = [Value_Ref_max[i] - Value_Ref_min[i] for i in range(num_periods)]
+#    
+#    Value = np.mean(np.array([Value_Ref]))*fraction_of_landscape[i_place] #Fraction of soil to be treated like forest for calc
+#    Value_max = [np.mean(np.array([Value_Ref_max[i]]))*fraction_of_landscape[i_place] for i in range(num_periods)] #Fraction of soil to be treated like forest for calc
+#    Value_min = [np.mean(np.array([Value_Ref_min[i]]))*fraction_of_landscape[i_place] for i in range(num_periods)] #Fraction of soil to be treated like forest for calc
+#    Value_delta = [np.mean(np.array([Value_Ref_delta[i]]))*fraction_of_landscape[i_place] for i in range(num_periods)] #Fraction of soil to be treated like forest for calc
+#
+#    sum_Value += Value
+#    sum_Value_max =   [sum_Value_max[i] +   Value_max[i]   for i in range(num_periods)]
+#    sum_Value_min =   [sum_Value_min[i] +   Value_min[i]   for i in range(num_periods)]
+#    sum_Value_delta = [sum_Value_delta[i] + Value_delta[i] for i in range(num_periods)]
+#    print "Maximum Basin-wide stored soil water in", place, "(Annual) = ", Value," cm"
+#    for i in range(num_periods):
+#        print "Basin-wide stored soil water in", place, "(", period_name[i], "avg max) = ", Value_max[i]," cm"
+#        print "Basin-wide stored soil water in", place, "(", period_name[i], "avg min) = ", Value_min[i]," cm"
+#        print "Basin-wide stored soil water in", place, "(", period_name[i], "avg delta) = ", Value_delta[i]," cm"
+#
+#print "Maximum Basin-wide stored soil water whole WB (Annual) = ", sum_Value, " cm"
+#for i in range(num_periods):
+#    print "Basin-wide stored soil water whole WB (", period_name[i], " avg max) = ", sum_Value_max[i]," cm"
+#    print "Basin-wide stored soil water whole WB (", period_name[i], " avg min) = ", sum_Value_min[i]," cm"
+#    print "Basin-wide stored soil water whole WB (", period_name[i], " avg delta) = ", sum_Value_delta[i]," cm"
+#row = [4, 'Basin-wide Max soil water']
+#row.append(sum_Value)
+#row.extend([Value_Ref_max[i] for i in range(num_periods)])
+#table.append(row)
+#row = [5, 'Basin-wide Min soil water']
+#row.append(' ')
+#row.extend([Value_Ref_min[i] for i in range(num_periods)])
+#table.append(row)
+#row = [6, 'Basin-wide Delta soil water']
+#row.append(' ')
+#row.extend([Value_Ref_delta[i] for i in range(num_periods)])
+#table.append(row)
 
 
 Col_num = 1
@@ -371,6 +372,8 @@ for i in rules:
     if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
 specific_minQ = vol/cst.Willamette_Basin_area
 print 'Minimum flows at Salem (Annual) = ', specific_minQ*100.,' cm'
+row = [11, 'Minimum flows at Salem']
+row.append(specific_minQ*100)
 
 i_period = -1
 minflows = []
@@ -385,8 +388,6 @@ for period in period_name:
     minflows.append(specific_minQ*100.)
     print "Minimum flows at Salem (", period_name[i_period], ") = ", specific_minQ*100.," cm"
     vol = 0.
-row = [11, 'Minimum flows at Salem']
-row.append(specific_minQ*100)
 row.extend([minflows[i] for i in range(num_periods)])
 table.append(row)
 row = [11.5, 'Willamette minus min flows at Salem']
