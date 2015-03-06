@@ -37,6 +37,13 @@ elif era == 'past':
     total_days_in_calculation = cst.days_in_60_yrs
     data_yr_start = 0
     data_yr_end = 59
+    
+if scenario == 'Historic':
+    title = 'Simulated Historical (1950 - 2010) Reference scenario'
+elif scenario == 'Ref':
+    title = '2070 - 2100 Reference scenario'
+elif scenario == 'HighClim':
+    title = '2070 - 2100 HighClim scenario'
 
 table = []
 
