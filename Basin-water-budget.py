@@ -45,6 +45,9 @@ elif scenario == 'Ref':
 elif scenario == 'HighClim':
     title = '2070 - 2100 HighClim scenario'
 
+header = ['Scenario', 'Month', 'Precip', 'SnowDelta', 'ResDelta', 'SoilDelta', 'Evap', 'Ag', 'Muni', 'EF', 'Outflow', 'AgOut', 'MuniOut']
+assert False
+
 table = []
 
 if period == 'months':
@@ -411,10 +414,10 @@ row.extend([table[0][i] - table[-1][i] for i in range(2,num_periods+3)])
 table.append(row)
 
 table.sort(key=lambda x: x[0])
-
+table_transposed = np.transpose(table)
 import csv
 
-with open("Willamette_water_budget_" + postscript + ".csv", "wb") as f:
-    writer = csv.writer(f)
+with open("Willamette_water_budget_" + postscript + ".csv", "wb") as file_:
+    writer = csv.writer(file_)
     writer.writerows(header)
     writer.writerows(table)
