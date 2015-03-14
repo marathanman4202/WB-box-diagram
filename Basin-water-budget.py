@@ -46,7 +46,7 @@ elif scenario == 'HighClim':
     title = '2070 - 2100 HighClim scenario'
 
 header = ['Scenario', 'Month', 'Precip', 'SnowDelta', 'ResDelta', 'SoilDelta', 'Evap', 'Ag', 'Muni', 'EF', 'Outflow', 'AgOut', 'MuniOut']
-assert False
+##assert False
 
 table = []
 
