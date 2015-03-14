@@ -56,7 +56,7 @@ def matrix_from_xls(
             data_tmp = np.array(np.genfromtxt(file_w_path, delimiter=',',skip_header=1)) # Read csv file
             data_yr_tmp = data_tmp[:,column]
             return data_2D(data_yr_tmp,skip,xcycle)
-    elif filetype == 'xls':
+    elif filetype == 'xls' or filetype == 'xlsx':
         workbook = xlrd.open_workbook(file_w_path)
         # get 0th sheet, column, starting at 1st row
         sheetnum = 0

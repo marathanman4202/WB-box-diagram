@@ -367,11 +367,41 @@ file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data 
 data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)  # Read csv file cols into matrices and sum the matrices
 Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*100*period_days[i]*cst.cfs_to_m3/cst.Willamette_Basin_area*100.*1.11386 for i in range(num_periods)]
 
-print "Municipal & domestic water diverted (Annual) = ", Value*100/cst.Willamette_Basin_area," cm"
+if era != 'future':
+    print "Municipal & domestic water diverted (Annual) = ", sum(Value_Ref)," cm"    
+else:
+    print "Municipal & domestic water diverted (Annual) = ", Value*100/cst.Willamette_Basin_area," cm"
 for i in range(num_periods):
     print "Municipal & domestic water diverted (", period_name[i], ") = ", Value_Ref[i]," cm"
 row = [10, 'Municipal & domestic']
-row.append(Value*100/cst.Willamette_Basin_area)
+if era != 'future':
+    row.append(sum(Value_Ref))
+else:
+    row.append(Value*100/cst.Willamette_Basin_area)
+row.extend([Value_Ref[i] for i in range(num_periods)])
+table.append(row)
+
+##********************************* urban water demand/disposition code 3-14-15, pi day
+uwd_file = "seasonal_water_distribution_urban_demand.xlsx"  # let's simplify name to uwd
+urban_irrigation_efficiency = 0.80  # Based on email from W Jaeger 03/06/2015 01:52:31 PM PDT.  Fraction of urban water applied to landscape that is evapotranspired.
+data_uwd = mfx(uwd_file,column=4,filetype='xls')[0]
+data_uwd = data_uwd.astype(np.float) 
+data_uwd = np.roll(data_uwd,(365-cst.day_of_year_oct1)) # Re-order numbers so that first number is on Oct. 1
+data_v2 = np.subtract(data_v1,data_v1 * data_uwd)
+data_v2= data_v2 * urban_irrigation_efficiency
+Value_Ref = [nrc(data_v2,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*100*period_days[i]*cst.cfs_to_m3/cst.Willamette_Basin_area*100.*1.11386 for i in range(num_periods)]
+
+if era != 'future':
+    print "Municipal & domestic water Consumed (Annual) = ", sum(Value_Ref)," cm"    
+else:
+    print "Municipal & domestic water Consumed (Annual) = ", Value*100/cst.Willamette_Basin_area," cm"
+for i in range(num_periods):
+    print "Municipal & domestic water Consumed (", period_name[i], ") = ", Value_Ref[i]," cm"
+row = [10.5, 'Municipal & domestic water Consumed']
+if era != 'future':
+    row.append(sum(Value_Ref))
+else:
+    row.append(Value*100/cst.Willamette_Basin_area)
 row.extend([Value_Ref[i] for i in range(num_periods)])
 table.append(row)
 
