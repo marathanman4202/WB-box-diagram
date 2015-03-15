@@ -77,8 +77,11 @@ elif period == 'seasons':  # [0] is summer; [1] is winter
     period_secs = [period_days[i]*86400 for i in range(num_periods)]
     
 header = []
-row = ['Order', 'Flux','Annual (cm)']
+row = ['Order', 'Month','Annual (cm)']
 row.extend([period_name[i] + ' (cm)' for i in range(num_periods)])
+row_1 = ["","Scenario",]
+for i in range(num_periods+1):
+    row_1.append(scenario)
 header.append(row)
 
 Col_num = 1
@@ -446,6 +449,7 @@ table.append(row)
 table.sort(key=lambda x: x[0])  # sort by first (zeroth) element
 
 table = np.insert(table, 0, header, 0)  # insert row (axis = 0, the 2nd 0) into table above 0th row (the first 0)
+table = np.insert(table, 0, row_1, 0)
 table_transposed = np.transpose(table)
 #title_column = np.array(13*title)
 #table_transposed[:,:-1] = a
@@ -453,4 +457,4 @@ import csv
 
 with open("Willamette_water_budget_" + postscript + ".csv", "wb") as file_:
     writer = csv.writer(file_)
-    writer.writerows(table_transposed[1:])
+    writer.writerows(table_transposed)
