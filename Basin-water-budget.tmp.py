@@ -445,12 +445,11 @@ table.append(row)
 
 table.sort(key=lambda x: x[0])  # sort by first (zeroth) element
 
-table = np.insert(table, 0, header, 0)  # insert row (axis = 0, the 2nd 0) into table above 0th row (the first 0)
 table_transposed = np.transpose(table)
-#title_column = np.array(13*title)
-#table_transposed[:,:-1] = a
+title_column = [' ']; title_column.extend(13*[title])
+table_transposed = np.insert(table_transposed[1:], 0, title_column,1)
 import csv
 
 with open("Willamette_water_budget_" + postscript + ".csv", "wb") as file_:
     writer = csv.writer(file_)
-    writer.writerows(table_transposed[1:])
+    writer.writerows(table_transposed)
