@@ -45,10 +45,10 @@ elif scenario == 'Ref':
 elif scenario == 'HighClim':
     title = '2070 - 2100 HighClim scenario'
 
-header = ['Scenario', 'Month', 'Precip', 'SnowDelta', 'ResDelta', 'SoilDelta', 'Evap', 'Ag', 'Muni', 'EF', 'Outflow', 'AgOut', 'MuniOut']
-##assert False
-
 table = []
+header = ['Scenario', 'Month', 'Precip', 'SnowDelta', 'ResDelta', 'SoilDelta', 'Evap', 'Ag', 'Muni', 'EF', 'Outflow', 'AgOut', 'MuniOut']
+#table.append(header)
+
 
 if period == 'months':
     num_periods = 12
@@ -440,14 +440,17 @@ for period in period_name:
 row.extend([minflows[i] for i in range(num_periods)])
 table.append(row)
 row = [11.5, 'Willamette minus min flows at Salem']
-row.extend([table[0][i] - table[-1][i] for i in range(2,num_periods+3)])
+row.extend([table[1][i] - table[-1][i] for i in range(2,num_periods+3)])
 table.append(row)
 
-table.sort(key=lambda x: x[0])
+table.sort(key=lambda x: x[0])  # sort by first (zeroth) element
+
+table = np.insert(table, 0, header, 0)  # insert row (axis = 0, the 2nd 0) into table above 0th row (the first 0)
 table_transposed = np.transpose(table)
+#title_column = np.array(13*title)
+#table_transposed[:,:-1] = a
 import csv
 
 with open("Willamette_water_budget_" + postscript + ".csv", "wb") as file_:
     writer = csv.writer(file_)
-    writer.writerows(header)
-    writer.writerows(table)
+    writer.writerows(table_transposed[1:])
