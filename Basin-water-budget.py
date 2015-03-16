@@ -46,7 +46,7 @@ elif scenario == 'HighClim':
     title = '2070 - 2100 HighClim scenario'
 
 table = []
-header = ['Scenario', 'Month', 'Precip', 'SnowDelta', 'ResDelta', 'SoilDelta', 'Evap', 'Ag', 'Muni', 'EF', 'Outflow', 'AgOut', 'MuniOut']
+top_header = ['Scenario', 'Month', 'Precip', 'SnowDelta', 'ResDelta', 'SoilDelta', 'Evap', 'Ag', 'Muni', 'EF', 'Outflow', 'AgOut', 'MuniOut']
 #table.append(header)
 
 
@@ -77,11 +77,11 @@ elif period == 'seasons':  # [0] is summer; [1] is winter
     period_secs = [period_days[i]*86400 for i in range(num_periods)]
     
 header = []
-row = ['Order', 'Month','Annual (cm)']
-row.extend([period_name[i] + ' (cm)' for i in range(num_periods)])
+row = ['Order', 'Month','Ann']
+row.extend([period_name[i] for i in range(num_periods)])
 row_1 = ["","Scenario",]
 for i in range(num_periods+1):
-    row_1.append(scenario)
+    row_1.append(title)
 header.append(row)
 
 Col_num = 1
@@ -97,10 +97,11 @@ print "Willamette at Portland (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Willamette at Portland (", period_name[i], ") = ", Value_Ref[i]," cm"
 
-row = [100, 'Willamette at Portland']
+row = [100, 'Outflow Willamette']
 row.append(Value)
 row.extend([Value_Ref[i] for i in range(num_periods)])
 table.append(row)
+Willamette_Outflow = Value_Ref
 
 Col_num = 2
 file_model_csv = "Climate_" + scenario + "_Run0.csv"
@@ -114,10 +115,11 @@ Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*365./10.
 print "Basin-wide avg Precip (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Basin-wide avg Precip (", period_name[i], ") = ", Value_Ref[i]," cm"
-row = [1, 'Basin-wide avg Precip']
+row = [1, 'Precip']
 row.append(Value)
 row.extend([Value_Ref[i] for i in range(num_periods)])
 table.append(row)
+Precip = Value_Ref
 
 Col_num = 1
 file_model_csv = "Snow_(mm)_" + scenario + "_Run0.csv"
@@ -137,10 +139,18 @@ for i in range(num_periods):
 row = [2, 'Basin-wide Max SWE']
 row.append(Value)
 row.extend([Value_Ref_Max[i] for i in range(num_periods)])
-table.append(row)
+#table.append(row)
 row = [3, 'Basin-wide Min SWE']
 row.append(0.)
 row.extend([Value_Ref_Min[i] for i in range(num_periods)])
+#table.append(row)
+row = [3.1,'SnowDelta']
+row.append(Value)
+SnowDelta = num_periods*[0.]
+SnowDelta[0] = Value_Ref_Min[0] - Value_Ref_Min[-1]
+for i in range(1,num_periods):
+    SnowDelta[i] = Value_Ref_Min[i] - Value_Ref_Min[i-1]
+row.extend([SnowDelta[i] for i in range(num_periods)])
 table.append(row)
 
 # Calculate storage in soil water content as follows
@@ -236,10 +246,11 @@ Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*365./10.
 print "Basin-wide avg AET (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Basin-wide avg AET (", period_name[i], ") = ", Value_Ref[i]," cm"
-row = [7, 'Basin-wide AET']
+row = [7, 'Act EvapoTrans']
 row.append(Value)
 row.extend([Value_Ref[i] for i in range(num_periods)])
 table.append(row)
+AET = Value_Ref
 
 Col_num = [1,3]
 file_model_csv = "ET_by_LandCover_(mm)_" + scenario + "_Run0.csv"
@@ -305,14 +316,16 @@ for i in range(num_periods):
     print "All reservoirs", period_name[i], "min = ",    Value_Ref_min[i],  " cm"
     print "All reservoirs", period_name[i], "max = ",    Value_Ref_max[i],  " cm"
     print "All reservoirs", period_name[i], "max-min",   Value_Ref_maxmin[i], "cm"
-row = [3.5, 'All reservoirs delta']
+row = [3.5, 'ResDelta']
 row.append(sum(Value_Ref_delta))
 row.extend([Value_Ref_delta[i] for i in range(num_periods)])
 table.append(row)
+ResDelta = Value_Ref_delta
+
 row = [3.7, 'All reservoirs max - min']
 row.append(sum(Value_Ref_delta))
 row.extend([Value_Ref_maxmin[i] for i in range(num_periods)])
-table.append(row)
+#table.append(row)
 
 Col_num = 1
 file_model_csv = "Daily_WaterMaster_Metrics_" + scenario + "_Run0.csv"
@@ -334,10 +347,21 @@ Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*cst.seconds_in_yr/cst.
 print "Irrigation water diverted (Annual) = ", Value," cm"
 for i in range(num_periods):
     print "Irrigation water diverted (", period_name[i], ") = ", Value_Ref[i]," cm"
-row = [9, 'Irrigation']
+row = [9, 'Ag Irrigation']
 row.append(Value)
 row.extend([Value_Ref[i] for i in range(num_periods)])
 table.append(row)
+
+#*************************
+# Agricultural water consumed  PLACEHOLDER. This will need work once we have a way of calculating from Envision output or other
+Ag_AET_fraction = 0.75
+row = [109, 'Ag Irrig Consumed']
+for i in range(num_periods):
+    Value_Ref[i] = Ag_AET_fraction * Value_Ref[i]
+row.append(Value)
+row.extend([Value_Ref[i] for i in range(num_periods)])
+table.append(row)
+#************************
 
 file_model_csv = "Urban_Population_" + scenario + "_Run0.csv"
 file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -376,7 +400,7 @@ else:
     print "Municipal & domestic water diverted (Annual) = ", Value*100/cst.Willamette_Basin_area," cm"
 for i in range(num_periods):
     print "Municipal & domestic water diverted (", period_name[i], ") = ", Value_Ref[i]," cm"
-row = [10, 'Municipal & domestic']
+row = [10, 'Muni & Domest']
 if era != 'future':
     row.append(sum(Value_Ref))
 else:
@@ -400,7 +424,7 @@ else:
     print "Municipal & domestic water Consumed (Annual) = ", Value*100/cst.Willamette_Basin_area," cm"
 for i in range(num_periods):
     print "Municipal & domestic water Consumed (", period_name[i], ") = ", Value_Ref[i]," cm"
-row = [10.5, 'Municipal & domestic water Consumed']
+row = [110, 'Muni & Domest Consumed']
 if era != 'future':
     row.append(sum(Value_Ref))
 else:
@@ -424,7 +448,7 @@ for i in rules:
     if EF_rules[i][0] == 'minQ': vol += num_days*86400.*minQ
 specific_minQ = vol/cst.Willamette_Basin_area
 print 'Minimum flows at Salem (Annual) = ', specific_minQ*100.,' cm'
-row = [11, 'Minimum flows at Salem']
+row = [11, 'Environmental Flows']
 row.append(specific_minQ*100)
 
 i_period = -1
@@ -444,13 +468,26 @@ row.extend([minflows[i] for i in range(num_periods)])
 table.append(row)
 row = [11.5, 'Willamette minus min flows at Salem']
 row.extend([table[1][i] - table[-1][i] for i in range(2,num_periods+3)])
+#table.append(row)
+
+# Soil Delta calculations
+row = [6.1, 'SoilDelta']
+SoilDelta = num_periods*[0.]
+for i in range(num_periods):
+    SoilDelta[i] = Precip[i] - Willamette_Outflow[i] - AET[i] - ResDelta[i] - SnowDelta[i]
+totalSoilDelta = sum(SoilDelta)
+row.append(totalSoilDelta)
+row.extend(SoilDelta)
 table.append(row)
 
 table.sort(key=lambda x: x[0])  # sort by first (zeroth) element
 
+print np.shape(table)
+print np.shape(header)
 table = np.insert(table, 0, header, 0)  # insert row (axis = 0, the 2nd 0) into table above 0th row (the first 0)
 table = np.insert(table, 0, row_1, 0)
 table_transposed = np.transpose(table)
+table_transposed = table_transposed[1:]
 #title_column = np.array(13*title)
 #table_transposed[:,:-1] = a
 import csv
