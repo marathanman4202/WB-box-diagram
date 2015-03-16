@@ -1,5 +1,6 @@
 # Roy Haggerty
-# Sep 2014 - Feb 2015
+# Sep 2014 - Mar 2015
+# Help from Owen Haggerty Mar 2015
 # Code to automatically calculate Willamette Basin water budget from
 #   Envision output
 
@@ -21,10 +22,48 @@ winter_secs = winter_days*86400
 
 np.set_printoptions(precision=3)
 
-ensemble = [0,1,2,3]
-table_save = len(ensemble)*[None]
-simulation_num = -1
+save_results_to_csv_file_named = 'Willamette_water_budget_test'
 
+#******************************************************************************
+#  ****** Choose period to aggregate  *******    
+#  Currently works with months or seasons
+#  shifting is needed because we want Oct 1 start for water year
+period = 'months'
+if period == 'months':
+    num_periods = 12
+    period_name = ['Oct','Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May',
+                   'Jun', 'Jul', 'Aug', 'Sep']
+    period_start = [cst.day_of_year_oct1 + shft - 365, cst.day_of_year_nov1 + shft - 365,
+                    cst.day_of_year_dec1 + shft - 365, cst.day_of_year_jan1 + shft,
+                    cst.day_of_year_feb1 + shft, cst.day_of_year_mar1 + shft,
+                    cst.day_of_year_apr1 + shft, cst.day_of_year_may1 + shft,
+                    cst.day_of_year_jun1 + shft, cst.day_of_year_jul1 + shft,
+                    cst.day_of_year_aug1 + shft, cst.day_of_year_sep1 + shft]  
+    period_end =   [cst.day_of_year_oct31 + shft - 365, cst.day_of_year_nov30 + shft - 365,
+                    cst.day_of_year_dec31 + shft - 365, cst.day_of_year_jan31 + shft,
+                    cst.day_of_year_feb28 + shft, cst.day_of_year_mar31 + shft,
+                    cst.day_of_year_apr30 + shft, cst.day_of_year_may31 + shft,
+                    cst.day_of_year_jun30 + shft, cst.day_of_year_jul31 + shft,
+                    cst.day_of_year_aug31 + shft, cst.day_of_year_sep30 + shft]
+    period_days = [period_end[i] - period_start[i] + 1 for i in range(num_periods)]
+    period_secs = [period_days[i]*86400 for i in range(num_periods)]
+elif period == 'seasons':  # [0] is summer; [1] is winter
+    num_periods = 2
+    period_name = ['Summer','Winter']
+    period_start = [cst.day_of_year_jun1 + shft, 0]  
+    period_end =   [cst.day_of_year_sep30 + shft, cst.day_of_year_may31 + shft]
+    period_days = [period_end[i] - period_start[i] + 1 for i in range(num_periods)]
+    period_secs = [period_days[i]*86400 for i in range(num_periods)]
+        
+
+#******************************************************************************
+#  ****** Set up the simulations that are to be read & processed  *******    
+
+#  ****** Choose which simulations to read  *******    
+ensemble = [0,1,2,3]  # Each simulation corresponds to a number here
+table_save = len(ensemble)*[None]  # set up a table of the right size to save to
+
+simulation_num = -1
 for simulation in ensemble:
     simulation_num += 1
     if simulation == 0:
@@ -47,61 +86,28 @@ for simulation in ensemble:
         print 'no simulation chosen that is yet coded'
         assert False      
     
-    period = 'months'
-    
     if era == 'future':
-        #  scenario = 'HighClim'
-        #  scenario = 'Ref'
         postscript = scenario + '_2070-2100' + '_' + period
         total_days_in_calculation = cst.days_in_30_yrs
         data_yr_start = 59
         data_yr_end = 89
     elif era == 'past':
-        #  scenario = 'Historic'
         postscript = scenario + '1950-2010' + '_' + period
         total_days_in_calculation = cst.days_in_60_yrs
         data_yr_start = 0
         data_yr_end = 59
            
     table = []
-    top_header = ['Scenario', 'Month', 'Precip', 'SnowDelta', 'ResDelta', 'SoilDelta', 'Evap', 'Ag', 'Muni', 'EF', 'Outflow', 'AgOut', 'MuniOut']
-    #table.append(header)
     
-    
-    if period == 'months':
-        num_periods = 12
-        period_name = ['Oct','Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May',
-                       'Jun', 'Jul', 'Aug', 'Sep']
-        period_start = [cst.day_of_year_oct1 + shft - 365, cst.day_of_year_nov1 + shft - 365,
-                        cst.day_of_year_dec1 + shft - 365, cst.day_of_year_jan1 + shft,
-                        cst.day_of_year_feb1 + shft, cst.day_of_year_mar1 + shft,
-                        cst.day_of_year_apr1 + shft, cst.day_of_year_may1 + shft,
-                        cst.day_of_year_jun1 + shft, cst.day_of_year_jul1 + shft,
-                        cst.day_of_year_aug1 + shft, cst.day_of_year_sep1 + shft]  
-        period_end =   [cst.day_of_year_oct31 + shft - 365, cst.day_of_year_nov30 + shft - 365,
-                        cst.day_of_year_dec31 + shft - 365, cst.day_of_year_jan31 + shft,
-                        cst.day_of_year_feb28 + shft, cst.day_of_year_mar31 + shft,
-                        cst.day_of_year_apr30 + shft, cst.day_of_year_may31 + shft,
-                        cst.day_of_year_jun30 + shft, cst.day_of_year_jul31 + shft,
-                        cst.day_of_year_aug31 + shft, cst.day_of_year_sep30 + shft]
-        period_days = [period_end[i] - period_start[i] + 1 for i in range(num_periods)]
-        period_secs = [period_days[i]*86400 for i in range(num_periods)]
-    elif period == 'seasons':  # [0] is summer; [1] is winter
-        num_periods = 2
-        period_name = ['Summer','Winter']
-        period_start = [cst.day_of_year_jun1 + shft, 0]  
-        period_end =   [cst.day_of_year_sep30 + shft, cst.day_of_year_may31 + shft]
-        period_days = [period_end[i] - period_start[i] + 1 for i in range(num_periods)]
-        period_secs = [period_days[i]*86400 for i in range(num_periods)]
-        
     header = []
-    row = ['Order', 'Month','Ann']
+    row = ['Order', 'Month','Ann']   # Order is only used to re-order rows for output.  Numbers in Order are relative to each other only. 
     row.extend([period_name[i] for i in range(num_periods)])
     row_1 = ["","Scenario",]
     for i in range(num_periods+1):
         row_1.append(title)
     header.append(row)
-    
+
+#  ****** Willamette River Outflow *******    
     Col_num = 1
     file_model_csv = "Willamette_at_Portland_(m3_s)_" + scenario + "_Run0.csv"
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -115,12 +121,13 @@ for simulation in ensemble:
     for i in range(num_periods):
         print "Willamette at Portland (", period_name[i], ") = ", Value_Ref[i]," cm"
     
-    row = [100, 'Outflow Willamette']
+    row = [100, 'Outflow Willamette']  # Number is Order, which is only used to re-order rows for output.  Numbers in Order are relative to each other only.
     row.append(Value)
     row.extend([Value_Ref[i] for i in range(num_periods)])
     table.append(row)
     Willamette_Outflow = Value_Ref
     
+#  ****** Precipitation *******    
     Col_num = 2
     file_model_csv = "Climate_" + scenario + "_Run0.csv"
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -133,12 +140,13 @@ for simulation in ensemble:
     print "Basin-wide avg Precip (Annual) = ", Value," cm"
     for i in range(num_periods):
         print "Basin-wide avg Precip (", period_name[i], ") = ", Value_Ref[i]," cm"
-    row = [1, 'Precip']
+    row = [1, 'Precip']   # Number is Order, which is only used to re-order rows for output.  Numbers in Order are relative to each other only.
     row.append(Value)
     row.extend([Value_Ref[i] for i in range(num_periods)])
     table.append(row)
     Precip = Value_Ref
     
+#  ****** Snow (as SWE) *******    
     Col_num = 1
     file_model_csv = "Snow_(mm)_" + scenario + "_Run0.csv"
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -148,13 +156,12 @@ for simulation in ensemble:
     Value_Ref_Max = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]],oper='AverageMaximum')/10. for i in range(num_periods)]
     Value_Ref_Min = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]],oper='AverageMinimum')/10. for i in range(num_periods)]
     
-    #Value = np.mean(np.array([Value_Ref]))
     Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365],'AverageMaximum')/10.
     print "Basin-wide max SWE (Annual) = ", Value," cm"
     for i in range(num_periods):
         print "Basin-wide max SWE (", period_name[i], ") = ", Value_Ref_Max[i]," cm"
         print "Basin-wide min SWE (", period_name[i], ") = ", Value_Ref_Min[i]," cm"
-    row = [2, 'Basin-wide Max SWE']
+    row = [2, 'Basin-wide Max SWE']  # Number is Order, which is only used to re-order rows for output.  Numbers in Order are relative to each other only.
     row.append(Value)
     row.extend([Value_Ref_Max[i] for i in range(num_periods)])
     #table.append(row)
@@ -162,7 +169,9 @@ for simulation in ensemble:
     row.append(0.)
     row.extend([Value_Ref_Min[i] for i in range(num_periods)])
     #table.append(row)
-    row = [3.1,'SnowDelta']
+    
+#  ****** Change in Snow -- SnowDelta *******    
+    row = [3.1,'SnowDelta']   # Number is Order, which is only used to re-order rows for output.  Numbers in Order are relative to each other only.
     SnowDelta = num_periods*[0.]
     SnowDelta[0] = Value_Ref_Min[0] - Value_Ref_Min[-1]
     for i in range(1,num_periods):
@@ -171,11 +180,16 @@ for simulation in ensemble:
     row.extend([SnowDelta[i] for i in range(num_periods)])
     table.append(row)
     
+    fraction_of_landscape = [0.727, 0.273]   # division of landscape between ag and forest, approx
+
+#  ****** Former code for soil water content *******    
+#  Necessary output for it no longer available from Envision as
+#  of this code mod, Mar. 16, 2015.
+#  ******************************************
     # Calculate storage in soil water content as follows
     # Sum the soil water in the 4 categories of forest soil.  Do the same (further below) for ag
     # Take the difference between the max and the min as the storage
     
-    fraction_of_landscape = [0.727, 0.273]
     #Col_num = range(1,5)
     #sum_Value = 0.
     #sum_Value_max =   [0.]*num_periods
@@ -254,6 +268,7 @@ for simulation in ensemble:
     #table.append(row)
     
     
+#  ****** Actual Evapotranspiration *******    
     Col_num = 1
     file_model_csv = "ET_by_Elevation_(mm)_" + scenario + "_Run0.csv"
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -270,6 +285,7 @@ for simulation in ensemble:
     table.append(row)
     AET = Value_Ref
     
+#  ****** ET for Ag & Forest *******    
     Col_num = [1,3]
     file_model_csv = "ET_by_LandCover_(mm)_" + scenario + "_Run0.csv"
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -285,6 +301,7 @@ for simulation in ensemble:
         for i in range(num_periods):
             print "Basin-wide avg", place, "AET (", period_name[i], ") = ", Value_Ref[i]," cm"
     
+#  ****** Reservoir calcs *******    
     # http://www.oregon.gov/owrd/docs/1998_04_Willamette_Brochure.pdf
     WVP_Vol_summer = (93900+28700+281600+65000+194600+24800+249900+324200+78800+143900+108200)*cst.acft_to_m3/cst.Willamette_Basin_area*100.   #info from web on summer vol
     WVP_Vol_full_pool = (116800+32900+455100+77600+355500+60700+281000+45800+89500+219000+125000)*cst.acft_to_m3/cst.Willamette_Basin_area*100. #info from web on full pool
@@ -334,17 +351,21 @@ for simulation in ensemble:
         print "All reservoirs", period_name[i], "min = ",    Value_Ref_min[i],  " cm"
         print "All reservoirs", period_name[i], "max = ",    Value_Ref_max[i],  " cm"
         print "All reservoirs", period_name[i], "max-min",   Value_Ref_maxmin[i], "cm"
+        
+#  ****** Change in Reservoir storage (ResDelta) *******    
     row = [3.5, 'ResDelta']
     row.append(sum(Value_Ref_delta))
     row.extend([Value_Ref_delta[i] for i in range(num_periods)])
     table.append(row)
     ResDelta = Value_Ref_delta
     
+#  ****** Reservoir max minus min for period *******    
     row = [3.7, 'All reservoirs max - min']
     row.append(sum(Value_Ref_delta))
     row.extend([Value_Ref_maxmin[i] for i in range(num_periods)])
     #table.append(row)
     
+#  ****** Instream regulatory use *******    
     Col_num = 1
     file_model_csv = "Daily_WaterMaster_Metrics_" + scenario + "_Run0.csv"
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -357,6 +378,7 @@ for simulation in ensemble:
     for i in range(num_periods):
         print "Instream regulatory use (", period_name[i], ") = ", Value_Ref[i]," cm"
      
+#  ****** Irrigation *******    
     Col_num = [2,3]
     data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)  # Read csv file cols into matrices and sum the matrices
     Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_secs[i]/cst.Willamette_Basin_area*100. for i in range(num_periods)]
@@ -370,7 +392,7 @@ for simulation in ensemble:
     row.extend([Value_Ref[i] for i in range(num_periods)])
     table.append(row)
     
-    #*************************
+#  ****** Irrigation water lost to ET *******    
     # Agricultural water consumed  PLACEHOLDER. This will need work once we have a way of calculating from Envision output or other
     Ag_AET_fraction = 0.75
     row = [109, 'Ag Irrig Consumed']
@@ -381,6 +403,7 @@ for simulation in ensemble:
     table.append(row)
     #************************
     
+#  ****** Population calcs *******    
     file_model_csv = "Urban_Population_" + scenario + "_Run0.csv"
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
     data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
@@ -395,6 +418,7 @@ for simulation in ensemble:
     Basin_Pop = UrbPop + RurPop
     print "Population = ", Basin_Pop
     
+#  ****** Waer use per capita calcs *******    
     if era == 'future':
         file_model_csv = "UrbanWaterDemand(_ccf_per_day_)_" + scenario + "_Run0.csv"
         file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -406,6 +430,7 @@ for simulation in ensemble:
     else:
         pass
     
+#  ****** Municipal water use *******    
     Col_num = range(1,9)
     file_model_csv = "Daily_Urban_Water_Demand_Summary_" + scenario + "_Run0.csv"
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
@@ -426,6 +451,7 @@ for simulation in ensemble:
     row.extend([Value_Ref[i] for i in range(num_periods)])
     table.append(row)
     
+#  ****** Municipal water ET estimate *******    
     ##********************************* urban water demand/disposition code 3-14-15, pi day
     uwd_file = "seasonal_water_distribution_urban_demand.xlsx"  # let's simplify name to uwd
     urban_irrigation_efficiency = 0.80  # Based on email from W Jaeger 03/06/2015 01:52:31 PM PDT.  Fraction of urban water applied to landscape that is evapotranspired.
@@ -447,6 +473,7 @@ for simulation in ensemble:
     row.extend([Value_Ref[i] for i in range(num_periods)])
     table.append(row)
     
+#  ****** Environmental Flows *******    
     import EF_rules as efr
     EFrules = efr.get_EFrules()
     keys = ['Salem']
@@ -485,7 +512,8 @@ for simulation in ensemble:
     row.extend([table[1][i] - table[-1][i] for i in range(2,num_periods+3)])
     #table.append(row)
     
-    # Soil Delta calculations
+#  ****** Change in soil moisture (SoilDelta) *******    
+#     Calculated as a residual
     row = [6.1, 'SoilDelta']
     SoilDelta = num_periods*[0.]
     for i in range(num_periods):
@@ -494,22 +522,28 @@ for simulation in ensemble:
     row.append(totalSoilDelta)
     row.extend(SoilDelta)
     table.append(row)
-    
-    table.sort(key=lambda x: x[0])  # sort by first (zeroth) element
+
+#******************************************************************************
+#  ****** Prep and save information to table *******    
+    table.sort(key=lambda x: x[0])  # sort by first (zeroth) element, which is the Order number that we have been recording
     
     table = np.insert(table, 0, header, 0)  # insert row (axis = 0, the 2nd 0) into table above 0th row (the first 0)
     table = np.insert(table, 0, row_1, 0)
-    table_transposed = np.transpose(table)
-#    table_transposed = table_transposed[1:]
+    table_transposed = np.transpose(table)  # We want to print each process as a column rather than a row, so transpose
     final_header = table_transposed[1]
     if simulation_num == 0:
         table_save[simulation_num]=table_transposed[1:]
     else:
         table_save[simulation_num]=table_transposed[2:]
 
-import csv
 
-with open("Willamette_water_budget_" + ".csv", "wb") as file_:
+
+#******************************************************************************
+#******************************************************************************
+#******************************************************************************
+#  ****** Print to csv file *******    
+import csv
+with open(save_results_to_csv_file_named + ".csv", "wb") as file_:
     writer = csv.writer(file_)
     for simulation_num in range(len(ensemble)):
         writer.writerows(table_save[simulation_num])
