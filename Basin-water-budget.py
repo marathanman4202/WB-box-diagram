@@ -286,20 +286,20 @@ for simulation in ensemble:
     AET = Value_Ref
     
 #  ****** ET for Ag & Forest *******    
-    Col_num = [1,3]
-    file_model_csv = "ET_by_LandCover_(mm)_" + scenario + "_Run0.csv"
-    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-    i_place = -1
-    for place in ['Forest','Ag']:
-        i_place += 1
-        data_v1 = mfx(file_model_csv_w_path, column=Col_num[i_place], skip=cst.day_of_year_oct1) # Read csv file into matrix
-        Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]/10.*fraction_of_landscape[i_place] for i in range(num_periods)]
-    
-        Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*365./10.*fraction_of_landscape[i_place]
-        print "Basin-wide avg", place, "AET (Annual) = ", Value," cm"
-        for i in range(num_periods):
-            print "Basin-wide avg", place, "AET (", period_name[i], ") = ", Value_Ref[i]," cm"
+##    Col_num = [1,3]
+##    file_model_csv = "ET_by_LandCover_(mm)_" + scenario + "_Run0.csv"
+##    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
+##    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
+##    i_place = -1
+##    for place in ['Forest','Ag']:
+##        i_place += 1
+##        data_v1 = mfx(file_model_csv_w_path, column=Col_num[i_place], skip=cst.day_of_year_oct1) # Read csv file into matrix
+##        Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]/10.*fraction_of_landscape[i_place] for i in range(num_periods)]
+##    
+##        Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*365./10.*fraction_of_landscape[i_place]
+##        print "Basin-wide avg", place, "AET (Annual) = ", Value," cm"
+##        for i in range(num_periods):
+##            print "Basin-wide avg", place, "AET (", period_name[i], ") = ", Value_Ref[i]," cm"
     
 #  ****** Reservoir calcs *******    
     # http://www.oregon.gov/owrd/docs/1998_04_Willamette_Brochure.pdf
@@ -367,7 +367,7 @@ for simulation in ensemble:
     
 #  ****** Instream regulatory use *******    
     Col_num = 1
-    file_model_csv = "Daily_WaterMaster_Metrics_" + scenario + "_Run0.csv"
+    file_model_csv = "AltWaterMaster_Daily_Metrics_" + scenario + "_Run0.csv"
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
     data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
     data_v1 = mfx(file_model_csv_w_path, column=Col_num, skip=cst.day_of_year_oct1) # Read csv file into matrix
