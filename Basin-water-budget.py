@@ -68,7 +68,7 @@ for simulation in ensemble:
     simulation_num += 1
     if simulation == 0:
         era = 'past'
-        scenario = 'Historic'
+        scenario = 'HistoricRef'
         title = 'Simulated Historical (1950 - 2010) Reference scenario'
     elif simulation == 1:
         era = 'future'
