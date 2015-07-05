@@ -1,5 +1,5 @@
 # Roy Haggerty
-# Sep 2014 - Mar 2015
+# Sep 2014 - Jul 2015
 # Help from Owen Haggerty Mar 2015
 # Code to automatically calculate Willamette Basin water budget from
 #   Envision output
@@ -129,7 +129,7 @@ for simulation in ensemble:
     
 #  ****** Precipitation *******    
     Col_num = 2
-    file_model_csv = "Climate_" + scenario + "_Run0.csv"
+    file_model_csv = "HBV_Climate_by_elev_0-200-1200_" + scenario + "_Run0.csv"
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
     data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
     Value_Ref = np.mean((np.array(data_v[:,Col_num]))[:(total_days_in_calculation-1)])*365/10.
@@ -148,7 +148,7 @@ for simulation in ensemble:
     
 #  ****** Snow (as SWE) *******    
     Col_num = 1
-    file_model_csv = "Snow_(mm)_" + scenario + "_Run0.csv"
+    file_model_csv = "HBV_Snow_(mm)_by_elev_0-500-1200_" + scenario + "_Run0.csv"
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
     data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
     Value_Ref = np.mean([np.max(np.array(data_v[i*365:(i+1)*365,Col_num])) for i in range(data_yr_start,data_yr_end+1)])/10. #avg over max of each of 30 yrs
@@ -270,7 +270,7 @@ for simulation in ensemble:
     
 #  ****** Actual Evapotranspiration *******    
     Col_num = 1
-    file_model_csv = "ET_by_Elevation_(mm)_" + scenario + "_Run0.csv"
+    file_model_csv = "HBV_ET_(mm)_by_elev_0-200-1200_" + scenario + "_Run0.csv"
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
     data_v1 = mfx(file_model_csv_w_path, column=Col_num, skip=cst.day_of_year_oct1) # Read csv file into matrix
     Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]/10. for i in range(num_periods)]
@@ -402,33 +402,6 @@ for simulation in ensemble:
     row.extend([Value_Ref[i] for i in range(num_periods)])
     table.append(row)
     #************************
-    
-#  ****** Population calcs *******    
-    file_model_csv = "Urban_Population_" + scenario + "_Run0.csv"
-    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-    UrbPop = np.mean(np.sum(np.array(data_v[1:,1:][data_yr_start:data_yr_end+1]),1))
-    Metro_Pop = np.mean(np.array(data_v[data_yr_start:data_yr_end+1,1]))
-    
-    file_model_csv = "Rural_Residential_Population_" + scenario + "_Run0.csv"
-    file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-    data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-    RurPop = np.mean(np.sum(np.array(data_v[1:,1:][data_yr_start:data_yr_end+1]),1))
-    
-    Basin_Pop = UrbPop + RurPop
-    print "Population = ", Basin_Pop
-    
-#  ****** Waer use per capita calcs *******    
-    if era == 'future':
-        file_model_csv = "UrbanWaterDemand(_ccf_per_day_)_" + scenario + "_Run0.csv"
-        file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
-        data_v = np.array(np.genfromtxt(file_model_csv_w_path, delimiter=',',skip_header=1)) # Read csv file
-        Value_Ref = np.mean(np.sum(np.column_stack((np.array(data_v[data_yr_start:data_yr_end+1,1]),np.array(data_v[data_yr_start:data_yr_end+1,9]))),1))*100*365*cst.cfs_to_m3 # in m3
-        Value_Ref = Value_Ref*Basin_Pop/Metro_Pop
-        Value = np.mean(np.array([Value_Ref]))
-        print "Water use per person = ", Value*1000/3.785/365/Basin_Pop, " gal/day/person"
-    else:
-        pass
     
 #  ****** Municipal water use *******    
     Col_num = range(1,9)

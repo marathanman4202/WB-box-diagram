@@ -55,6 +55,7 @@ in_to_mm = 25.4         #Inches to milimeters
 acft_to_m3 = 1233.48
 acftperday_to_m3s = acft_to_m3/86400.
 acre_to_m2 = 4046.86
+ft_to_m = 0.3048
 Willamette_Basin_area = 29728.*1.e6  # m2
 Willamette_Basin_area_at_PDX = 11200.*math.pow(5280.*.3048,2) #11200 sq mi @ PDX taken from http://waterdata.usgs.gov/nwis/inventory/?site_no=14211720&agency_cd=USGS
 seconds_in_yr = 86400.*365
@@ -62,8 +63,9 @@ seconds_in_day = 86400.
 days_in_15_yrs = 15*365
 days_in_30_yrs = 30*365
 days_in_60_yrs = 60*365
+million_peryr_factor = 365*86400/1.e6
 
-#path_data = "C:\\Users\\haggertr\\Desktop\\Roy\\Research\\WW2100\\Research\\results2\\files\\"
+path_data = "C:\\Users\\haggertr\\Desktop\\Roy\\Research\\WW2100\\Research\\results2\\files\\"
 #path_data = "C:\\Users\\haggertr\\Desktop\\Documents\\work - OSU\\research\\WW2100\\Research\\results2\\files\\"
-path_data = "C:\\Users\\haggertr\\Desktop\\Documents\\work - OSU\\research\\WW2100\\Research\\results2\\altFiles\\"
+#path_data = "C:\\Users\\haggertr\\Desktop\\Documents\\work - OSU\\research\\WW2100\\Research\\results2\\altFiles\\"
 #path_data = "C:\\code\\Files\\"
