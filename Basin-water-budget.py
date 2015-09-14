@@ -426,9 +426,9 @@ for simulation in ensemble:
     
 #  ****** Municipal water ET estimate *******    
     ##********************************* urban water demand/disposition code 3-14-15, pi day
-    uwd_file = "seasonal_water_distribution_urban_demand.xlsx"  # let's simplify name to uwd
+    uwd_file = "seasonal_water_distribution_urban_demand.csv"  # let's simplify name to uwd
     urban_irrigation_efficiency = 0.80  # Based on email from W Jaeger 03/06/2015 01:52:31 PM PDT.  Fraction of urban water applied to landscape that is evapotranspired.
-    data_uwd = mfx(uwd_file,column=4,filetype='xls')[0]
+    data_uwd = mfx(uwd_file,column=5,filetype='csv')
     data_uwd = data_uwd.astype(np.float) 
     data_uwd = np.roll(data_uwd,(365-cst.day_of_year_oct1)) # Re-order numbers so that first number is on Oct. 1
     data_v2 = np.subtract(data_v1,data_v1 * data_uwd)
