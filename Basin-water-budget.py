@@ -489,12 +489,29 @@ for simulation in ensemble:
 #     Calculated as a residual
     row = [6.1, 'SoilDelta']
     SoilDelta = num_periods*[0.]
+    pos_SoilDelta = 0.  # Needed for precip evaporation problem
     for i in range(num_periods):
         SoilDelta[i] = Precip[i] - Willamette_Outflow[i] - AET[i] - ResDelta[i] - SnowDelta[i]
+        if SoilDelta[i] > 0: pos_SoilDelta += SoilDelta[i] # Needed for precip evaporation problem
+            
     totalSoilDelta = sum(SoilDelta)
-    row.append(totalSoilDelta)
+    SoilDelta_beforeCorrection = [totalSoilDelta] # Needed for precip evaporation problem
+    SoilDelta_beforeCorrection.extend(SoilDelta) # Needed for precip evaporation problem
+    ET_correction = [totalSoilDelta] # Needed for precip evaporation problem
+#    row.append(totalSoilDelta)
+    row.append(0.)  # Needed for precip evaporation problem  UNCOMMENT PREVIOUS LINE
+    for i in range(num_periods):  # This whole loop Needed for precip evaporation problem
+        if SoilDelta[i] > 0. and totalSoilDelta > 0: 
+            ET_correction.append(SoilDelta[i] - SoilDelta[i]*(pos_SoilDelta-totalSoilDelta)/pos_SoilDelta) # Needed for precip evaporation problem
+            SoilDelta[i] = SoilDelta[i]*(pos_SoilDelta-totalSoilDelta)/pos_SoilDelta  # Needed for precip evaporation problem
+        else:  # Needed for precip evaporation problem
+            ET_correction.append(0.)  # Needed for precip evaporation problem
     row.extend(SoilDelta)
     table.append(row)
+    
+    ActET_row = table[3]  # Needed for precip evaporation problem
+    ActET_row [2:] = np.add(ActET_row [2:], ET_correction)  # Needed for precip evaporation problem
+    table[3] = ActET_row  # Needed for precip evaporation problem
 
 #******************************************************************************
 #  ****** Prep and save information to table *******    
