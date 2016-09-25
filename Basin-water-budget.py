@@ -392,6 +392,20 @@ for simulation in ensemble:
     row.extend([Value_Ref[i] for i in range(num_periods)])
     table.append(row)
     
+#  ****** Out-of-Basin transfers *******    
+    Col_num = [6]
+    data_v2 = mfx(file_model_csv_w_path, column=Col_num, skip=cst.day_of_year_oct1) # Read csv file into matrix
+    Value_Ref2 = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_secs[i]/cst.Willamette_Basin_area*100./86400. for i in range(num_periods)]
+    
+    Value2 = nrc(data_v2,[data_yr_start, 1],[data_yr_end,365])*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
+    print "Out-of-basin transfers into WRB (Annual) = ", Value2," cm"
+    for i in range(num_periods):
+        print "Out-of-basin transfers (", period_name[i], ") = ", Value_Ref2[i]," cm"
+    row = [119, 'Out-of-Basin transfers']
+    row.append(Value2)
+    row.extend([Value_Ref2[i] for i in range(num_periods)])
+    table.append(row)
+    
 #  ****** Irrigation water lost to ET *******    
     # Agricultural water consumed  PLACEHOLDER. This will need work once we have a way of calculating from Envision output or other
     Ag_AET_fraction = 0.75
