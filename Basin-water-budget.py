@@ -379,11 +379,11 @@ for simulation in ensemble:
         print "Instream regulatory use (", period_name[i], ") = ", Value_Ref[i]," cm"
      
 #  ****** Irrigation *******    
-    Col_num = [2,3]
+    Col_num = [4,5]
     data_v1 = np.sum([mfx(file_model_csv_w_path, column=j, skip=cst.day_of_year_oct1) for j in Col_num],0)  # Read csv file cols into matrices and sum the matrices
-    Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_secs[i]/cst.Willamette_Basin_area*100. for i in range(num_periods)]
+    Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_secs[i]/cst.Willamette_Basin_area*100./86400. for i in range(num_periods)]
     
-    Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*cst.seconds_in_yr/cst.Willamette_Basin_area*100.
+    Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*cst.seconds_in_yr/cst.Willamette_Basin_area*100./86400.
     print "Irrigation water diverted (Annual) = ", Value," cm"
     for i in range(num_periods):
         print "Irrigation water diverted (", period_name[i], ") = ", Value_Ref[i]," cm"
