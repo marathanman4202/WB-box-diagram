@@ -270,7 +270,7 @@ for simulation in ensemble:
     
 #  ****** Actual Evapotranspiration *******    
     Col_num = 1
-    file_model_csv = "HBV_ET_(mm)_by_elev_0-200-1200_" + scenario + "_Run0.csv"
+    file_model_csv = "HBV_ET_(mm)_by_elev_0-200-1200_" + scenario + "_Run0.csv"   #bookmark
     file_model_csv_w_path = cst.path_data + file_model_csv       # Add path to data & stats files
     data_v1 = mfx(file_model_csv_w_path, column=Col_num, skip=cst.day_of_year_oct1) # Read csv file into matrix
     Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]/10. for i in range(num_periods)]
@@ -501,7 +501,7 @@ for simulation in ensemble:
     
 #  ****** Change in soil moisture (SoilDelta) *******    
 #     Calculated as a residual
-    row = [6.1, 'SoilDelta']
+    row = [6.1, 'SoilDelta']    #bookmark
     SoilDelta = num_periods*[0.]
     pos_SoilDelta = 0.  # Needed for precip evaporation problem
     for i in range(num_periods):
@@ -511,21 +511,35 @@ for simulation in ensemble:
     totalSoilDelta = sum(SoilDelta)
     SoilDelta_beforeCorrection = [totalSoilDelta] # Needed for precip evaporation problem
     SoilDelta_beforeCorrection.extend(SoilDelta) # Needed for precip evaporation problem
-    ET_correction = [totalSoilDelta] # Needed for precip evaporation problem
-#    row.append(totalSoilDelta)
-    row.append(0.)  # Needed for precip evaporation problem  UNCOMMENT PREVIOUS LINE
-    for i in range(num_periods):  # This whole loop Needed for precip evaporation problem
-        if SoilDelta[i] > 0. and totalSoilDelta > 0: 
-            ET_correction.append(SoilDelta[i] - SoilDelta[i]*(pos_SoilDelta-totalSoilDelta)/pos_SoilDelta) # Needed for precip evaporation problem
-            SoilDelta[i] = SoilDelta[i]*(pos_SoilDelta-totalSoilDelta)/pos_SoilDelta  # Needed for precip evaporation problem
-        else:  # Needed for precip evaporation problem
-            ET_correction.append(0.)  # Needed for precip evaporation problem
+    HCGW = -1.*totalSoilDelta # Needed for High Cascades GW correction
+    HCGW_mthly = num_periods*[-1.*totalSoilDelta/12.]
+    row.append(0.0)
+    SoilDelta = np.add(SoilDelta, HCGW_mthly)
+#    row.append(0.)  # Needed for precip evaporation problem  UNCOMMENT PREVIOUS LINE
+#    for i in range(num_periods):  # This whole loop Needed for precip evaporation problem
+#        if SoilDelta[i] > 0. and totalSoilDelta > 0: 
+#            ET_correction.append(SoilDelta[i] - SoilDelta[i]*(pos_SoilDelta-totalSoilDelta)/pos_SoilDelta) # Needed for precip evaporation problem
+#            SoilDelta[i] = SoilDelta[i]*(pos_SoilDelta-totalSoilDelta)/pos_SoilDelta  # Needed for precip evaporation problem
+#        else:  # Needed for precip evaporation problem
+#            ET_correction.append(0.)  # Needed for precip evaporation problem
     row.extend(SoilDelta)
+    print row
     table.append(row)
-    
-    ActET_row = table[3]  # Needed for precip evaporation problem
-    ActET_row [2:] = np.add(ActET_row [2:], ET_correction)  # Needed for precip evaporation problem
-    table[3] = ActET_row  # Needed for precip evaporation problem
+#    
+#    ActET_row = table[3]  # Needed for precip evaporation problem
+#    ActET_row [2:] = np.add(ActET_row [2:], ET_correction)  # Needed for precip evaporation problem
+#    table[3] = ActET_row  # Needed for precip evaporation problem
+
+#  ****** High Cascades Groundwater *******    
+#     Calculated as a residual - needs to be updated with daily values
+    row = [120, 'High Cascades GW']
+    HCGW_envision = 8.2  #cm/y averaged over the WB that is contributed by High Cascades GW, estimated from Envision runs
+    row.append(HCGW_envision)
+    row.extend(12*[HCGW_envision/12.])    
+#    row.append(HCGW)
+#    row.extend(HCGW_mthly)    
+    print "High Cascades Groundwater Contribution (Annual) = ", HCGW," cm"
+    table.append(row)
 
 #******************************************************************************
 #  ****** Prep and save information to table *******    
