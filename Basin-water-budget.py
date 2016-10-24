@@ -275,11 +275,21 @@ for simulation in ensemble:
     data_v1 = mfx(file_model_csv_w_path, column=Col_num, skip=cst.day_of_year_oct1) # Read csv file into matrix
     Value_Ref = [nrc(data_v1,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]/10. for i in range(num_periods)]
     
-    Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*365./10.
-    print "Basin-wide avg AET (Annual) = ", Value," cm"
+    # Get snow evaporation and add to ET
+    Col_num = 5
+    file_model_csv2 = "HBV_mass_balance_(mm_H2O)_" + scenario + "_Run0.csv"   #bookmark
+    file_model_csv2_w_path = cst.path_data + file_model_csv2       # Add path to data & stats files
+    data_v2 = mfx(file_model_csv2_w_path, column=Col_num, skip=cst.day_of_year_oct1) # Read csv file into matrix
+    Value_Ref2 = [nrc(data_v2,[data_yr_start, period_start[i]],[data_yr_end,period_end[i]])*period_days[i]/10. for i in range(num_periods)]
+    
+    Value_Ref = np.add(Value_Ref, Value_Ref2)
+        
+    Value = nrc(data_v1,[data_yr_start, 1],[data_yr_end,365])*365./10. \
+          + nrc(data_v2,[data_yr_start, 1],[data_yr_end,365])*365./10.
+    print "Basin-wide avg AET (Annual) incl Snow Evap = ", Value," cm"
     for i in range(num_periods):
-        print "Basin-wide avg AET (", period_name[i], ") = ", Value_Ref[i]," cm"
-    row = [7, 'Act EvapoTrans']
+        print "Basin-wide avg AET incl Snow Evap (", period_name[i], ") = ", Value_Ref[i]," cm"
+    row = [7, 'Act EvapoTrans incl Snow Evap']
     row.append(Value)
     row.extend([Value_Ref[i] for i in range(num_periods)])
     table.append(row)
@@ -533,7 +543,7 @@ for simulation in ensemble:
 #  ****** High Cascades Groundwater *******    
 #     Calculated as a residual - needs to be updated with daily values
     row = [120, 'High Cascades GW']
-    HCGW_envision = 8.2  #cm/y averaged over the WB that is contributed by High Cascades GW, estimated from Envision runs
+    HCGW_envision = 8.16  #cm/y averaged over the WB that is contributed by High Cascades GW, estimated from Envision runs.  Info from Dave Conklin 10/22/16
     row.append(HCGW_envision)
     row.extend(12*[HCGW_envision/12.])    
 #    row.append(HCGW)
